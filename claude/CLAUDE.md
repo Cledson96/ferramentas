@@ -42,7 +42,7 @@ Usar template padronizado com contexto do Jira. Executar `/pr` para gerar automa
 
 ## Jira
 - Organização: https://juscash.atlassian.net
-- Usar MCP Atlassian para buscar cards quando disponível
+- Usar Jira REST (skill `jira-rest`) para todas as operações — sem MCP Atlassian
 - Link de card: `https://juscash.atlassian.net/browse/{TASK-ID}`
 
 ## Contexto de projeto
@@ -65,6 +65,7 @@ Usar template padronizado com contexto do Jira. Executar `/pr` para gerar automa
 - `/jc:review` — code review completo da branch antes de abrir PR
 - `/jc:docs` — gera docs locais em `docs/` e sincroniza com Confluence (invocada automaticamente quando detectar necessidade de documentar)
 - Confluence REST — acesso direto ao Confluence via REST API (invocada automaticamente quando precisar ler/escrever no Confluence)
+- Jira REST — acesso direto ao Jira via REST API (invocada automaticamente quando Jira for mencionado)
 - `/jc:context` — gera contexto do projeto (CLAUDE.md + .context/)
 - `/jc:onboarding` — apresenta o projeto e responde dúvidas de arquitetura
 - Design System — ativo automaticamente ao criar componentes UI
