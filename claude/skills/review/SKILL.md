@@ -74,6 +74,8 @@ Analise o diff completo verificando os seguintes pontos:
 - Variáveis de ambiente acessadas diretamente sem `process.env` ou sem fallback? → Atenção
 - Try/catch ausente em operações assíncronas críticas? → Atenção
 - Inputs sem validação? → Atenção
+- Comentários `TODO` ou `FIXME` deixados no código? → Atenção (resolver ou remover antes da PR)
+- Uso de `any` em TypeScript sem justificativa? → Atenção (tipar corretamente)
 
 ### Passo 4 — Validar contra requisitos do Jira
 
@@ -118,7 +120,7 @@ Após corrigir: execute `/pr` para criar a PR.
 
 ### Passo 6 — Sugerir correções
 
-Para cada item de atenção e bloqueador, ofereça a correção diretamente. Exemplo:
+Para cada item de atenção e bloqueador, apresente a correção com before/after. Exemplo:
 
 ```
 Para corrigir o import bloqueador em `src/pages/Login.tsx`:
@@ -130,4 +132,12 @@ import { Button } from 'antd'
 import { Button } from '@juscash/design-system'
 ```
 
-Pergunte ao usuário: "Quer que eu aplique essas correções automaticamente?"
+**IMPORTANTE:** nunca aplicar nenhuma correção sem confirmação explícita do usuário.
+Após apresentar todas as sugestões, perguntar:
+
+```
+Quais dessas correções quer que eu aplique?
+(informe os números, "todas" ou "nenhuma")
+```
+
+Aguardar resposta antes de modificar qualquer arquivo.
