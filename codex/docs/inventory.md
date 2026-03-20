@@ -4,17 +4,18 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 
 ## Resumo do lote
 
-- total de skills: 18
+- total de skills: 19
 - skills de sistema copiadas: 0
 - skills com `scripts/`: 7
 - skills com `references/`: 2
 - skills com `assets/`: 5
-- skills com `agents/openai.yaml` embutido: 18
+- skills com `agents/openai.yaml` embutido: 19
 
 ## Skills versionadas
 
 | Skill | Papel principal | Por que entrou na v1 | Dependencias externas | Reuso futuro |
 | --- | --- | --- | --- | --- |
+| `confluence-docs` | Fluxo editorial de docs no Confluence | separa templates e sincronizacao da integracao base | `confluence-rest`, credenciais Atlassian, Node | Codex primeiro, possivel em Claude/OpenCode |
 | `confluence-rest` | Operacoes diretas no Confluence via REST | cobre leitura e escrita fora do MCP | Atlassian REST, credenciais Confluence, Node | Codex primeiro, possivel em Claude/OpenCode |
 | `figma` | Base de trabalho com Figma MCP | da contexto de design e assets | Figma MCP | Alto potencial de reuso |
 | `figma-implement-design` | Implementacao fiel de design | workflow focado em design-to-code | Figma MCP | Alto potencial de reuso |
@@ -38,6 +39,7 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 
 - O lote inicial replica o conjunto atual de skills customizadas mantidas no seu ambiente local.
 - `.system` ficou explicitamente de fora.
-- `confluence-rest` passa a ser a skill unica de Confluence neste repositorio.
+- `confluence-rest` passa a ser a skill base de Confluence neste repositorio.
+- `confluence-docs` concentra templates e fluxo editorial de documentacao usando `confluence-rest` como base operacional.
 - As skills da familia `jc-*` representam seu fluxo mais especifico de trabalho e foram preservadas como pacote.
 - Skills mais genericas como `playwright`, `project-context`, `jira-*`, `confluence-rest`, `figma*` e `gh-*` ficam bem posicionadas para reaproveitamento futuro em `claude/` e `opencode`.
