@@ -1,49 +1,55 @@
 ---
 name: figma
-description: Use o servidor MCP do Figma para obter contexto de design, screenshots, variaveis e assets do Figma, e para traduzir nodes do Figma em codigo de producao. Acione quando a tarefa envolver URLs do Figma, node IDs, implementacao design-to-code ou configuracao e resolucao de problemas do Figma MCP.
+description: Use como skill base tecnica de Figma MCP para setup, autenticacao, diagnostico e troubleshooting de conexao. Acione quando houver problema para conectar, autenticar, configurar ou validar ferramentas MCP do Figma. Nao use para implementar telas ou componentes de frontend.
 ---
 
-# Figma MCP
+# Figma MCP Base
 
-Use o servidor MCP do Figma para implementacoes guiadas por Figma. Para detalhes de configuracao e depuracao (variaveis de ambiente, config, verificacao), veja `references/figma-mcp-config.md`.
+Esta skill e a base de infraestrutura para Figma MCP.
 
-## Regras De Integracao Figma MCP
+Para implementacao real de UI a partir de design, use a skill `figma-implement-design`.
+Para detalhes de configuracao e depuracao (variaveis de ambiente, config e verificacao), veja `references/figma-mcp-config.md`.
 
-Estas regras definem como traduzir entradas do Figma em codigo para este projeto e devem ser seguidas em toda mudanca guiada por Figma.
+## Quando Usar
 
-### Fluxo obrigatorio (nao pular)
+- Falha de conexao com o servidor MCP do Figma
+- Problema de login OAuth
+- Ajuste de configuracao MCP (cliente remoto, endpoint, validacao)
+- Verificacao de ambiente para habilitar ferramentas do Figma
 
-1. Execute `get_design_context` primeiro para obter a representacao estruturada do node exato.
-2. Se a resposta estiver grande demais ou truncada, execute `get_metadata` para obter o mapa de nodes em alto nivel e depois refaca a consulta apenas para os nodes necessarios com `get_design_context`.
-3. Sempre traga `get_variable_defs` para o componente ou node que estiver sendo implementado, para reproduzir variaveis, cores, espacamentos e tokens com mais fidelidade.
-4. Execute `get_screenshot` para ter uma referencia visual da variante do node que sera implementada.
-5. So depois de ter `get_design_context`, `get_variable_defs` e `get_screenshot`, baixe qualquer asset necessario e comece a implementacao.
-6. Traduza a saida, normalmente React + Tailwind, para as convencoes, estilos e framework deste projeto. Reaproveite tokens de cor, componentes, tipografia e variaveis do projeto sempre que possivel.
-7. Valide contra o Figma para fidelidade de 1:1 em visual e comportamento antes de marcar como concluido.
+## Quando Nao Usar
 
-### Regras De Implementacao
+- Pedido de implementar componente/tela com fidelidade visual
+- Pedido de traduzir frame/node para codigo de producao
+- Pedido de validar paridade 1:1 com o Figma
 
-- Trate a saida do Figma MCP, normalmente React + Tailwind, como representacao de design e comportamento, nao como estilo final de codigo.
-- Substitua classes utilitarias do Tailwind pelos tokens/utilitarios preferidos do projeto quando aplicavel.
-- Reaproveite componentes existentes, como botoes, inputs, tipografia e wrappers de icone, em vez de duplicar funcionalidade.
-- Use de forma consistente o sistema de cores, a escala tipografica, os tokens de espaco e as variaveis do projeto.
-- Respeite os padroes de routing, state management e fetch de dados ja adotados no repo.
-- Busque fidelidade visual de 1:1 com o design do Figma. Quando houver conflito, prefira os tokens do design system e ajuste espacamentos ou tamanhos minimamente para bater com o visual.
-- Valide a UI final contra a screenshot do Figma tanto em aparencia quanto em comportamento.
+Nesses casos, acione `figma-implement-design`.
 
-### Tratamento De Assets
+## Fluxo Tecnico De Setup E Diagnostico
 
-- O servidor MCP do Figma fornece um endpoint de assets que pode servir imagens e SVGs.
-- IMPORTANTE: se o Figma MCP retornar uma fonte `localhost` para uma imagem ou SVG, use essa imagem ou SVG diretamente.
-- IMPORTANTE: NAO importe/adicione novos pacotes de icones; todos os assets devem vir no payload do Figma.
-- IMPORTANTE: nao use nem crie placeholders se uma fonte `localhost` for fornecida.
+1. Verifique se o MCP do Figma esta cadastrado.
+2. Se nao estiver, execute:
+   - `codex mcp add figma --url https://mcp.figma.com/mcp`
+3. Garanta cliente MCP remoto habilitado:
+   - habilite `[features].rmcp_client = true` no `config.toml`
+   - ou rode `codex --enable rmcp_client`
+4. Execute login OAuth:
+   - `codex mcp login figma`
+5. Se o login ocorrer agora, avise que pode ser necessario reiniciar o Codex antes de retomar a tarefa.
+6. Revalide chamadas MCP basicas antes de voltar ao fluxo de implementacao.
 
-### Prompt Baseado Em Link
+## Comandos Tecnicos Pontuais
 
-- O servidor e baseado em link: copie o link do frame/layer do Figma e passe essa URL para o cliente MCP quando pedir ajuda para implementacao.
-- O cliente nao navega na URL, mas extrai o node ID do link; sempre garanta que o link aponte para o node/variacao exata que voce quer.
+Quando a tarefa for estritamente tecnica, esta skill pode orientar chamadas pontuais como:
+
+- `get_metadata`
+- `get_design_context`
+- `get_screenshot`
+- `get_variable_defs`
+
+Sem executar fluxo de implementacao de UI dentro desta skill.
 
 ## Referencias
 
-- `references/figma-mcp-config.md` — configuracao, verificacao, troubleshooting e lembretes de uso baseado em link.
-- `references/figma-tools-and-prompts.md` — catalogo de ferramentas e padroes de prompt para selecionar frameworks/componentes e buscar metadata.
+- `references/figma-mcp-config.md` - setup, login e troubleshooting MCP
+- `references/figma-tools-and-prompts.md` - catalogo tecnico de ferramentas

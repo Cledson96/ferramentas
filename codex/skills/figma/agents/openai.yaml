@@ -1,9 +1,9 @@
 interface:
   display_name: "Figma"
-  short_description: "Use Figma MCP para trabalho de design-to-code"
+  short_description: "Setup, autenticacao e troubleshooting do Figma MCP"
   icon_small: "./assets/figma-small.svg"
   icon_large: "./assets/figma.png"
-  default_prompt: "Use o Figma MCP para inspecionar o design alvo, incluir variaveis do componente e traduzi-lo em decisoes de UI implementaveis."
+  default_prompt: "Resolva configuracao e conectividade do Figma MCP (setup, login, validacao e diagnostico). Nao execute fluxo completo de implementacao de UI nesta skill."
 
 dependencies:
   tools:

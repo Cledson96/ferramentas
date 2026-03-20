@@ -1,6 +1,6 @@
 ---
 name: "figma-implement-design"
-description: "Traduz nodes do Figma em codigo pronto para producao com fidelidade visual de 1:1 usando o fluxo do Figma MCP (contexto de design, screenshots, assets e translacao para as convencoes do projeto). Acione quando o usuario fornecer URLs do Figma ou node IDs, ou pedir para implementar designs ou componentes que precisam bater com as especificacoes do Figma. Requer conexao funcional com o servidor Figma MCP."
+description: "Skill principal para implementar frontend a partir de designs do Figma com fidelidade visual de 1:1. Acione para qualquer pedido de criar ou ajustar componentes/telas com base em URL ou node ID do Figma, traduzindo para codigo de producao nas convencoes do projeto. Requer conexao funcional com o servidor Figma MCP."
 ---
 
 
@@ -9,6 +9,9 @@ description: "Traduz nodes do Figma em codigo pronto para producao com fidelidad
 ## Visao Geral
 
 Esta skill fornece um fluxo estruturado para traduzir designs do Figma em codigo pronto para producao com precisao pixel-perfect. Ela garante integracao consistente com o servidor Figma MCP, uso adequado de tokens de design e paridade visual de 1:1 com os designs.
+
+Esta e a skill dona de implementacao de UI baseada em Figma.
+Se houver problema de setup, autenticacao ou conectividade MCP, use primeiro a skill `figma` para resolver a infraestrutura e depois retome aqui.
 
 ## Pre-Requisitos
 
@@ -85,7 +88,17 @@ Isso fornece os dados estruturados, incluindo:
 2. Identifique os child nodes especificos necessarios a partir da metadata
 3. Busque os child nodes individualmente com `get_design_context(fileKey=":fileKey", nodeId=":childNodeId")`
 
-### Passo 3: Capturar a Referencia Visual
+### Passo 3: Buscar Variaveis Do Componente
+
+Execute `get_variable_defs` com a mesma file key e o mesmo node ID para capturar variaveis, cores, espacamentos e tokens.
+
+```
+get_variable_defs(fileKey=":fileKey", nodeId="1-2")
+```
+
+Use esse retorno para reduzir hardcode e manter fidelidade ao design.
+
+### Passo 4: Capturar a Referencia Visual
 
 Execute `get_screenshot` com a mesma file key e o mesmo node ID para ter uma referencia visual.
 
@@ -95,7 +108,7 @@ get_screenshot(fileKey=":fileKey", nodeId="1-2")
 
 Essa screenshot serve como fonte de verdade para a validacao visual. Mantenha-a acessivel durante toda a implementacao.
 
-### Passo 4: Baixar os Assets Necessarios
+### Passo 5: Baixar os Assets Necessarios
 
 Baixe quaisquer assets, como imagens, icones e SVGs, retornados pelo servidor Figma MCP.
 
@@ -106,7 +119,7 @@ Baixe quaisquer assets, como imagens, icones e SVGs, retornados pelo servidor Fi
 - NAO use nem crie placeholders se uma fonte `localhost` for fornecida
 - Os assets sao servidos pelo endpoint de assets embutido do Figma MCP
 
-### Passo 5: Traduzir para as Convencoes do Projeto
+### Passo 6: Traduzir para as Convencoes do Projeto
 
 Traduza a saida do Figma para o framework, os estilos e as convencoes deste projeto.
 
@@ -118,7 +131,7 @@ Traduza a saida do Figma para o framework, os estilos e as convencoes deste proj
 - Use de forma consistente o sistema de cores, a escala tipografica e os tokens de espaco do projeto
 - Respeite os padroes existentes de routing, state management e fetch de dados
 
-### Passo 6: Atingir Paridade Visual de 1:1
+### Passo 7: Atingir Paridade Visual de 1:1
 
 Busque paridade visual pixel-perfect com o design do Figma.
 
@@ -130,7 +143,7 @@ Busque paridade visual pixel-perfect com o design do Figma.
 - Siga os requisitos WCAG de acessibilidade
 - Adicione documentacao de componente quando necessario
 
-### Passo 7: Validar Contra o Figma
+### Passo 8: Validar Contra o Figma
 
 Antes de marcar como concluido, valide a UI final contra a screenshot do Figma.
 
