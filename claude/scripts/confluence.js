@@ -1,324 +1,668 @@
 #!/usr/bin/env node
-/**
- * CLI para interagir com a REST API do Confluence.
- * Zero dependências — usa fetch nativo do Node 18+.
- *
- * Uso: node confluence.js <comando> [opções]
- *
- * Comandos:
- *   setup    --email <email> --token <api-token>   (salva credenciais globalmente)
- *   search   --cql "<query>"
- *   get      --page-id <id>
- *   create   --space-id <id> --title "<titulo>" --body-file <path> [--parent-id <id>]
- *   update   --page-id <id> --title "<titulo>" --body-file <path>
- *
- * Credenciais (ordem de precedência):
- *   1. Env vars: ATLASSIAN_EMAIL + ATLASSIAN_API_TOKEN
- *   2. Arquivo global: ~/.claude/atlassian.json
- *
- * Salvar credenciais:
- *   node confluence.js setup --email seu@email.com --token SEU_TOKEN
- *   Gerar token: https://id.atlassian.com/manage-profile/security/api-tokens
- */
 
-const fs   = require('fs');
-const os   = require('os');
-const path = require('path');
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
 
-// ─── Constantes ──────────────────────────────────────────────────────────────
+const DEFAULT_SPACE_ID = "164069";
 
-const BASE_URL         = 'https://juscash.atlassian.net/wiki';
-const DEFAULT_SPACE_ID = '164069';
-const CREDENTIALS_FILE = path.join(os.homedir(), '.claude', 'atlassian.json');
-
-// ─── Credenciais ─────────────────────────────────────────────────────────────
-
-function loadCredentials() {
-  // 1. Env vars têm prioridade
-  if (process.env.ATLASSIAN_EMAIL && process.env.ATLASSIAN_API_TOKEN) {
-    return { email: process.env.ATLASSIAN_EMAIL, token: process.env.ATLASSIAN_API_TOKEN };
-  }
-
-  // 2. Arquivo global ~/.claude/atlassian.json
-  if (fs.existsSync(CREDENTIALS_FILE)) {
-    try {
-      const creds = JSON.parse(fs.readFileSync(CREDENTIALS_FILE, 'utf8'));
-      if (creds.email && creds.token) return creds;
-    } catch {
-      // arquivo corrompido — continua para o erro abaixo
-    }
-  }
-
-  return null;
+function printJson(value) {
+  console.log(JSON.stringify(value, null, 2));
 }
 
-function getAuthHeader() {
-  const creds = loadCredentials();
-
-  if (!creds) {
-    error(
-      'Credenciais Atlassian não encontradas.\n' +
-      'Configure com: node confluence.js setup --email seu@email.com --token SEU_TOKEN\n' +
-      'Gerar token: https://id.atlassian.com/manage-profile/security/api-tokens'
-    );
-  }
-
-  return 'Basic ' + Buffer.from(`${creds.email}:${creds.token}`).toString('base64');
-}
-
-function saveCredentials(email, token) {
-  const dir = path.dirname(CREDENTIALS_FILE);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(CREDENTIALS_FILE, JSON.stringify({ email, token }, null, 2), 'utf8');
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function error(msg) {
-  console.error(`[erro] ${msg}`);
-  process.stdout.write(JSON.stringify({ error: msg }) + '\n');
-  process.exit(1);
-}
-
-async function apiFetch(path, options = {}) {
-  const url = path.startsWith('http') ? path : `${BASE_URL}${path}`;
-  const auth = getAuthHeader();
-
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      'Authorization': auth,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      ...options.headers,
-    },
+function fail(message, extra = {}, exitCode = 1) {
+  printJson({
+    ok: false,
+    error: message,
+    ...extra,
   });
-
-  const text = await res.text();
-  let body;
-  try {
-    body = JSON.parse(text);
-  } catch {
-    body = { raw: text };
-  }
-
-  if (!res.ok) {
-    const msg = body.message || body.errorMessage || JSON.stringify(body);
-    error(`HTTP ${res.status}: ${msg}`);
-  }
-
-  return body;
+  process.exit(exitCode);
 }
 
 function parseArgs(argv) {
-  const args = {};
-  for (let i = 0; i < argv.length; i++) {
-    if (argv[i].startsWith('--')) {
-      const key = argv[i].replace(/^--/, '').replace(/-([a-z])/g, (_, c) => c.toUpperCase());
-      const next = argv[i + 1];
-      if (next && !next.startsWith('--')) {
-        args[key] = next;
-        i++;
-      } else {
-        args[key] = true;
-      }
+  const args = { _: [] };
+
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i];
+
+    if (!token.startsWith("--")) {
+      args._.push(token);
+      continue;
+    }
+
+    const eqIndex = token.indexOf("=");
+    if (eqIndex !== -1) {
+      const key = token.slice(2, eqIndex);
+      args[key] = token.slice(eqIndex + 1);
+      continue;
+    }
+
+    const key = token.slice(2);
+    const next = argv[i + 1];
+    if (next && !next.startsWith("--")) {
+      args[key] = next;
+      i += 1;
+    } else {
+      args[key] = true;
     }
   }
+
   return args;
 }
 
-function readBodyFile(filePath) {
-  if (!filePath) error('--body-file é obrigatório para este comando.');
-  if (!fs.existsSync(filePath)) error(`Arquivo não encontrado: ${filePath}`);
-  return fs.readFileSync(filePath, 'utf8');
+function getAuthCandidates() {
+  const homedir = os.homedir();
+  const codeHome = process.env.CODEX_HOME || path.join(homedir, ".codex");
+
+  return [
+    path.join(homedir, ".claude", "atlassian.json"),
+    path.join(codeHome, "atlassian.json"),
+    path.join(homedir, ".codex", "atlassian.json"),
+  ];
 }
 
-// ─── Comandos ────────────────────────────────────────────────────────────────
-
-async function search(cql) {
-  if (!cql) error('--cql é obrigatório. Ex: --cql \'space = "DT" AND title ~ "API"\'');
-
-  const params = new URLSearchParams({ cql, limit: '25' });
-  const data = await apiFetch(`/rest/api/content/search?${params}`);
-
-  const results = (data.results || []).map(r => ({
-    id: r.id,
-    title: r.title,
-    status: r.status,
-    url: r._links?.webui ? `${BASE_URL}${r._links.webui}` : null,
-  }));
-
-  return { total: data.totalSize || results.length, results };
+function normalizeBaseUrl(baseUrl) {
+  const trimmed = String(baseUrl || "").trim().replace(/\/+$/, "");
+  if (!trimmed) return "";
+  return trimmed.endsWith("/wiki") ? trimmed : `${trimmed}/wiki`;
 }
 
-async function getPage(pageId) {
-  if (!pageId) error('--page-id é obrigatório.');
+function loadAuth() {
+  const candidates = [...new Set(getAuthCandidates())];
+  const existingPath = candidates.find((candidate) => fs.existsSync(candidate));
 
-  const params = new URLSearchParams({ 'body-format': 'storage' });
-  const data = await apiFetch(`/api/v2/pages/${pageId}?${params}`);
+  if (!existingPath) {
+    fail("Atlassian credentials file not found.", {
+      details: {
+        searchedPaths: candidates,
+        expectedShape: {
+          baseUrl: "https://juscash.atlassian.net",
+          email: "usuario@empresa.com",
+          token: "token_atlassian",
+        },
+        nextStep:
+          "Peca ao usuario baseUrl, email e token. Depois execute o comando setup para salvar as credenciais globalmente.",
+      },
+    });
+  }
+
+  let raw;
+  try {
+    raw = fs.readFileSync(existingPath, "utf8");
+  } catch (error) {
+    fail("Failed to read Atlassian credentials file.", {
+      details: { path: existingPath, message: error.message },
+    });
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    fail("Atlassian credentials file is not valid JSON.", {
+      details: { path: existingPath, message: error.message },
+    });
+  }
+
+  const baseUrl = normalizeBaseUrl(parsed.baseUrl || "");
+  const email = String(parsed.email || "").trim();
+  const token = String(parsed.token || parsed.apiToken || "").trim();
+
+  if (!baseUrl || !email || !token) {
+    fail("Atlassian credentials file is missing required fields.", {
+      details: {
+        path: existingPath,
+        required: ["baseUrl", "email", "token"],
+        acceptedTokenKeys: ["token", "apiToken"],
+      },
+    });
+  }
+
+  return { path: existingPath, baseUrl, email, token };
+}
+
+function buildAuthHeader(auth) {
+  return `Basic ${Buffer.from(`${auth.email}:${auth.token}`).toString("base64")}`;
+}
+
+function parseJsonSafe(text) {
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+async function confluenceRequest(auth, method, requestPath, options = {}) {
+  const url = new URL(`${auth.baseUrl}${requestPath}`);
+  const headers = {
+    Authorization: buildAuthHeader(auth),
+    Accept: "application/json",
+    ...options.headers,
+  };
+
+  const init = { method, headers };
+
+  if (options.query) {
+    Object.entries(options.query).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        url.searchParams.set(key, String(value));
+      }
+    });
+  }
+
+  if (options.body !== undefined) {
+    headers["Content-Type"] = "application/json";
+    init.body = JSON.stringify(options.body);
+  }
+
+  const response = await fetch(url, init);
+  const text = await response.text();
+  const data = parseJsonSafe(text);
+
+  if (!response.ok) {
+    fail(`Confluence API request failed: ${response.status} ${response.statusText}`, {
+      status: response.status,
+      details: {
+        method,
+        path: requestPath,
+        response: data || text,
+      },
+    });
+  }
 
   return {
-    id: data.id,
-    title: data.title,
-    version: data.version?.number,
-    status: data.status,
-    body: data.body?.storage?.value || '',
-    url: data._links?.webui ? `${BASE_URL}${data._links.webui}` : null,
+    ok: true,
+    status: response.status,
+    data: data !== null ? data : text,
   };
 }
 
-async function createPage({ spaceId, title, bodyFile, parentId }) {
-  if (!title) error('--title é obrigatório.');
-  const body = readBodyFile(bodyFile);
+function requireArg(args, name) {
+  const value = args[name];
+  if (!value || value === true) {
+    fail(`Missing required argument --${name}.`);
+  }
+  return value;
+}
 
+function parseJsonArg(args, name) {
+  const value = requireArg(args, name);
+
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    fail(`Invalid JSON for --${name}.`, {
+      details: { message: error.message },
+    });
+  }
+}
+
+function readBodyFile(filePath) {
+  if (!filePath) {
+    fail("Missing required argument --body-file.");
+  }
+
+  if (!fs.existsSync(filePath)) {
+    fail("Confluence body file not found.", {
+      details: { path: filePath },
+    });
+  }
+
+  try {
+    return fs.readFileSync(filePath, "utf8");
+  } catch (error) {
+    fail("Failed to read Confluence body file.", {
+      details: { path: filePath, message: error.message },
+    });
+  }
+}
+
+async function searchPages(auth, args) {
+  const cql = requireArg(args, "cql");
+  const response = await confluenceRequest(auth, "GET", "/rest/api/content/search", {
+    query: {
+      cql,
+      limit: args.limit || "25",
+    },
+  });
+
+  return {
+    ok: true,
+    command: "search",
+    cql,
+    total: response.data.totalSize || response.data.results?.length || 0,
+    results: (response.data.results || []).map((page) => ({
+      id: page.id,
+      type: page.type,
+      title: page.title,
+      status: page.status,
+      url: page._links?.webui ? `${auth.baseUrl}${page._links.webui}` : null,
+    })),
+  };
+}
+
+async function getPage(auth, args) {
+  const pageId = requireArg(args, "page-id");
+  const response = await confluenceRequest(auth, "GET", `/api/v2/pages/${pageId}`, {
+    query: {
+      "body-format": args["body-format"] || "storage",
+    },
+  });
+
+  return {
+    ok: true,
+    command: "get",
+    id: response.data.id,
+    title: response.data.title,
+    status: response.data.status,
+    spaceId: response.data.spaceId,
+    parentId: response.data.parentId || null,
+    version: response.data.version?.number || null,
+    createdAt: response.data.createdAt || null,
+    body: response.data.body?.storage?.value || "",
+    url: response.data._links?.webui ? `${auth.baseUrl}${response.data._links.webui}` : null,
+  };
+}
+
+async function getChildren(auth, args) {
+  const pageId = requireArg(args, "page-id");
+  const response = await confluenceRequest(
+    auth,
+    "GET",
+    `/rest/api/content/${pageId}/descendant/page`,
+    {
+      query: {
+        limit: args.limit || "250",
+      },
+    },
+  );
+
+  return {
+    ok: true,
+    command: "children",
+    pageId,
+    total: response.data.size || response.data.results?.length || 0,
+    results: (response.data.results || []).map((page) => ({
+      id: page.id,
+      parentId: null,
+      title: page.title,
+      status: page.status,
+      type: page.type,
+      url: page._links?.webui ? `${auth.baseUrl}${page._links.webui}` : null,
+    })),
+  };
+}
+
+async function getTree(auth, args) {
+  const pageId = requireArg(args, "page-id");
+  const root = await confluenceRequest(auth, "GET", `/api/v2/pages/${pageId}`);
+  const descendants = await getChildren(auth, args);
+  const parentMap = new Map();
+  const childRefMap = new Map();
+
+  const rootNode = {
+    pageId: root.data.id,
+    title: root.data.title,
+    parentId: root.data.parentId || null,
+    depth: 0,
+    status: root.data.status,
+    type: "page",
+    url: root.data._links?.webui ? `${auth.baseUrl}${root.data._links.webui}` : null,
+  };
+
+  parentMap.set(rootNode.pageId, rootNode.parentId);
+  childRefMap.set(rootNode.pageId, []);
+
+  (descendants.results || []).forEach((page) => {
+    childRefMap.set(page.id, []);
+  });
+
+  (descendants.results || []).forEach((page) => {
+    const pageUrl = page.url || "";
+    const pagePath = pageUrl
+      ? new URL(pageUrl).pathname.replace(/\/+$/, "")
+      : "";
+    const bestParent = [...childRefMap.keys()]
+      .filter((candidateId) => candidateId !== page.id)
+      .map((candidateId) => ({
+        candidateId,
+        candidateUrl: descendants.results.find((item) => item.id === candidateId)?.url
+          || (candidateId === rootNode.pageId ? rootNode.url : null),
+      }))
+      .filter((candidate) => candidate.candidateUrl)
+      .map((candidate) => ({
+        candidateId: candidate.candidateId,
+        candidatePath: new URL(candidate.candidateUrl).pathname.replace(/\/+$/, ""),
+      }))
+      .filter((candidate) => pagePath.startsWith(candidate.candidatePath) && candidate.candidatePath !== pagePath)
+      .sort((a, b) => b.candidatePath.length - a.candidatePath.length)[0];
+
+    const parentId = bestParent?.candidateId || rootNode.pageId;
+    parentMap.set(page.id, parentId);
+    childRefMap.get(parentId)?.push(page.id);
+  });
+
+  function resolveDepth(candidateId) {
+    let depth = 0;
+    let currentId = parentMap.get(candidateId);
+
+    while (currentId) {
+      depth += 1;
+      if (currentId === rootNode.pageId) {
+        return depth;
+      }
+      currentId = parentMap.get(currentId);
+    }
+
+    return depth;
+  }
+
+  return {
+    ok: true,
+    command: "tree",
+    root: rootNode,
+    total: descendants.results.length + 1,
+    results: [
+      rootNode,
+      ...(descendants.results || []).map((page) => ({
+        pageId: page.id,
+        title: page.title,
+        parentId: parentMap.get(page.id) || null,
+        depth: resolveDepth(page.id),
+        status: page.status,
+        type: page.type,
+        url: page.url,
+      })),
+    ],
+  };
+}
+
+function ensureOutputPath(outputFile, outputDir) {
+  const normalizedOutputDir = outputDir
+    ? path.resolve(outputDir)
+    : path.resolve(process.cwd(), "docs");
+  const resolvedFile = path.isAbsolute(outputFile)
+    ? path.resolve(outputFile)
+    : path.resolve(process.cwd(), outputFile);
+
+  const relativeToDir = path.relative(normalizedOutputDir, resolvedFile);
+  if (
+    relativeToDir.startsWith("..") ||
+    path.isAbsolute(relativeToDir) ||
+    path.extname(resolvedFile).toLowerCase() !== ".xhtml"
+  ) {
+    fail("Invalid outputFile for pull-pages.", {
+      details: {
+        outputFile,
+        outputDir: normalizedOutputDir,
+        expectedExtension: ".xhtml",
+      },
+    });
+  }
+
+  return { normalizedOutputDir, resolvedFile };
+}
+
+async function pullPages(auth, args) {
+  const pages = parseJsonArg(args, "pages-json");
+  const outputDirArg = args["output-dir"] || "docs";
+  const outputDir = path.resolve(process.cwd(), outputDirArg);
+
+  if (!Array.isArray(pages) || pages.length === 0) {
+    fail("Expected a non-empty JSON array for --pages-json.");
+  }
+
+  const results = [];
+
+  for (const item of pages) {
+    if (!item || typeof item !== "object") {
+      fail("Each item in --pages-json must be an object.");
+    }
+
+    const pageId = String(item.pageId || "").trim();
+    const outputFile = String(item.outputFile || "").trim();
+
+    if (!pageId || !outputFile) {
+      fail("Each pull-pages item must include pageId and outputFile.", {
+        details: { item },
+      });
+    }
+
+    const { resolvedFile } = ensureOutputPath(outputFile, outputDir);
+    const page = await confluenceRequest(auth, "GET", `/api/v2/pages/${pageId}`, {
+      query: {
+        "body-format": "storage",
+      },
+    });
+    const body = page.data.body?.storage?.value;
+
+    if (typeof body !== "string") {
+      fail("Confluence page did not return storage body.", {
+        details: { pageId },
+      });
+    }
+
+    fs.mkdirSync(path.dirname(resolvedFile), { recursive: true });
+    fs.writeFileSync(resolvedFile, body, "utf8");
+
+    results.push({
+      pageId: page.data.id,
+      title: page.data.title,
+      outputFile: resolvedFile,
+      status: "saved",
+      version: page.data.version?.number || null,
+      url: page.data._links?.webui ? `${auth.baseUrl}${page.data._links.webui}` : null,
+    });
+  }
+
+  return {
+    ok: true,
+    command: "pull-pages",
+    outputDir,
+    total: results.length,
+    results,
+  };
+}
+
+async function createPage(auth, args) {
+  const title = requireArg(args, "title");
+  const body = readBodyFile(args["body-file"]);
   const payload = {
-    spaceId: spaceId || DEFAULT_SPACE_ID,
+    spaceId: args["space-id"] || DEFAULT_SPACE_ID,
     title,
-    status: 'current',
+    status: "current",
     body: {
-      representation: 'storage',
+      representation: "storage",
       value: body,
     },
   };
 
-  if (parentId) {
-    payload.parentId = parentId;
+  if (args["parent-id"]) {
+    payload.parentId = args["parent-id"];
   }
 
-  const data = await apiFetch('/api/v2/pages', {
-    method: 'POST',
-    body: JSON.stringify(payload),
+  const response = await confluenceRequest(auth, "POST", "/api/v2/pages", {
+    body: payload,
   });
 
   return {
-    id: data.id,
-    title: data.title,
-    version: data.version?.number,
-    url: data._links?.webui ? `${BASE_URL}${data._links.webui}` : null,
+    ok: true,
+    command: "create",
+    id: response.data.id,
+    title: response.data.title,
+    status: response.data.status,
+    spaceId: response.data.spaceId,
+    parentId: response.data.parentId || null,
+    version: response.data.version?.number || null,
+    url: response.data._links?.webui ? `${auth.baseUrl}${response.data._links.webui}` : null,
   };
 }
 
-async function updatePage({ pageId, title, bodyFile }) {
-  if (!pageId) error('--page-id é obrigatório.');
-  if (!title) error('--title é obrigatório.');
-  const body = readBodyFile(bodyFile);
+async function updatePage(auth, args) {
+  const pageId = requireArg(args, "page-id");
+  const title = requireArg(args, "title");
+  const body = readBodyFile(args["body-file"]);
 
-  // Buscar versão atual automaticamente
-  const current = await apiFetch(`/api/v2/pages/${pageId}?body-format=storage`);
-  const currentVersion = current.version?.number;
+  const current = await confluenceRequest(auth, "GET", `/api/v2/pages/${pageId}`, {
+    query: { "body-format": "storage" },
+  });
 
-  if (!currentVersion) error('Não foi possível obter a versão atual da página.');
+  const currentVersion = current.data.version?.number;
+
+  if (!currentVersion) {
+    fail("Could not determine current page version.", {
+      details: { pageId },
+    });
+  }
 
   const payload = {
     id: pageId,
     title,
-    status: 'current',
+    status: "current",
     version: {
       number: currentVersion + 1,
     },
     body: {
-      representation: 'storage',
+      representation: "storage",
       value: body,
     },
   };
 
-  const data = await apiFetch(`/api/v2/pages/${pageId}`, {
-    method: 'PUT',
-    body: JSON.stringify(payload),
+  const response = await confluenceRequest(auth, "PUT", `/api/v2/pages/${pageId}`, {
+    body: payload,
   });
 
   return {
-    id: data.id,
-    title: data.title,
-    version: data.version?.number,
-    url: data._links?.webui ? `${BASE_URL}${data._links.webui}` : null,
+    ok: true,
+    command: "update",
+    id: response.data.id,
+    title: response.data.title,
+    status: response.data.status,
+    spaceId: response.data.spaceId,
+    parentId: response.data.parentId || null,
+    version: response.data.version?.number || null,
+    url: response.data._links?.webui ? `${auth.baseUrl}${response.data._links.webui}` : null,
   };
 }
 
-// ─── Comando: setup ──────────────────────────────────────────────────────────
+function setupCredentials(args) {
+  const baseUrl = requireArg(args, "base-url");
+  const email = requireArg(args, "email");
+  const token = requireArg(args, "token");
+  const primaryPath = getAuthCandidates()[0];
 
-function cmdSetup({ email, token }) {
-  if (!email) error('--email é obrigatório. Ex: --email seu@email.com');
-  if (!token) error('--token é obrigatório. Ex: --token SEU_API_TOKEN');
-
-  saveCredentials(email, token);
+  fs.mkdirSync(path.dirname(primaryPath), { recursive: true });
+  fs.writeFileSync(
+    primaryPath,
+    JSON.stringify(
+      {
+        baseUrl,
+        email,
+        token,
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
 
   return {
     ok: true,
-    message: `Credenciais salvas em ${CREDENTIALS_FILE}`,
+    command: "setup",
+    path: primaryPath,
+    baseUrl: normalizeBaseUrl(baseUrl),
     email,
   };
 }
 
-// ─── CLI ─────────────────────────────────────────────────────────────────────
-
 const HELP = `
-Confluence CLI — JusCash Plugin
+Confluence CLI — REST direta
 
-Uso: node confluence.js <comando> [opções]
+Uso: node confluence.js <comando> [opcoes]
 
 Comandos:
-  setup    --email <email> --token <api-token>   salva credenciais globalmente
-  search   --cql "<query CQL>"
-  get      --page-id <id>
+  setup    --base-url <url> --email <email> --token <api-token>
+  search   --cql "<query CQL>" [--limit 25]
+  get      --page-id <id> [--body-format storage]
+  children --page-id <id> [--limit 250]
+  tree     --page-id <id> [--limit 250]
+  pull-pages --pages-json "<json>" [--output-dir docs]
   create   --title "<titulo>" --body-file <path> [--space-id <id>] [--parent-id <id>]
   update   --page-id <id> --title "<titulo>" --body-file <path>
 
-Credenciais (ordem de precedência):
-  1. Env vars: ATLASSIAN_EMAIL + ATLASSIAN_API_TOKEN
-  2. Arquivo global: ~/.claude/atlassian.json  (criado pelo comando setup)
+Credenciais (ordem de busca):
+  - ~/.claude/atlassian.json
+  - $CODEX_HOME/atlassian.json
+  - ~/.codex/atlassian.json
+
+Formato canonico:
+  {
+    "baseUrl": "https://juscash.atlassian.net",
+    "email": "usuario@empresa.com",
+    "token": "token_atlassian"
+  }
 
 Exemplos:
-  node confluence.js setup --email seu@email.com --token ATATT3x...
+  node confluence.js setup --base-url "https://juscash.atlassian.net" --email "usuario@empresa.com" --token "TOKEN"
   node confluence.js search --cql 'space = "DT" AND title ~ "API"'
-  node confluence.js get --page-id 123456789
-  node confluence.js create --title "Nova Página" --body-file body.xhtml --parent-id 987654321
-  node confluence.js update --page-id 123456789 --title "Página Atualizada" --body-file body.xhtml
+  node confluence.js get --page-id 769196193
+  node confluence.js children --page-id 770441364
+  node confluence.js tree --page-id 770441364
+  node confluence.js pull-pages --pages-json '[{"pageId":"769196193","outputFile":"docs/07-API-ENDPOINTS-SIJ.xhtml"}]'
+  node confluence.js create --title "Nova Pagina" --body-file body.xhtml
+  node confluence.js update --page-id 769196193 --title "Pagina Atualizada" --body-file body.xhtml
 `.trim();
 
 async function main() {
   const command = process.argv[2];
   const args = parseArgs(process.argv.slice(3));
 
-  if (!command || command === '--help' || command === '-h') {
+  if (!command || command === "--help" || command === "-h") {
     console.log(HELP);
     process.exit(0);
   }
 
   let result;
 
-  switch (command) {
-    case 'setup':
-      result = cmdSetup({ email: args.email, token: args.token });
-      break;
-    case 'search':
-      result = await search(args.cql);
-      break;
-    case 'get':
-      result = await getPage(args.pageId);
-      break;
-    case 'create':
-      result = await createPage({
-        spaceId: args.spaceId,
-        title: args.title,
-        bodyFile: args.bodyFile,
-        parentId: args.parentId,
-      });
-      break;
-    case 'update':
-      result = await updatePage({
-        pageId: args.pageId,
-        title: args.title,
-        bodyFile: args.bodyFile,
-      });
-      break;
-    default:
-      error(`Comando desconhecido: "${command}". Use --help para ver os comandos disponíveis.`);
+  if (command === "setup") {
+    result = setupCredentials(args);
+    printJson(result);
+    return;
   }
 
-  process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+  const auth = loadAuth();
+
+  switch (command) {
+    case "search":
+      result = await searchPages(auth, args);
+      break;
+    case "get":
+      result = await getPage(auth, args);
+      break;
+    case "children":
+      result = await getChildren(auth, args);
+      break;
+    case "tree":
+      result = await getTree(auth, args);
+      break;
+    case "pull-pages":
+      result = await pullPages(auth, args);
+      break;
+    case "create":
+      result = await createPage(auth, args);
+      break;
+    case "update":
+      result = await updatePage(auth, args);
+      break;
+    default:
+      fail(`Unknown command "${command}".`, { details: { help: HELP } });
+  }
+
+  printJson(result);
 }
 
-main().catch(err => {
-  error(err.message || String(err));
+main().catch((error) => {
+  fail(error.message || String(error));
 });

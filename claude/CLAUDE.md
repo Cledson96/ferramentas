@@ -63,7 +63,8 @@ Usar template padronizado com contexto do Jira. Executar `/pr` para gerar automa
 - `/jc:commit` — gera mensagem de commit padronizada com Jira ID
 - `/jc:pr` — cria PR com template e contexto do Jira
 - `/jc:review` — code review completo da branch antes de abrir PR
-- `/jc:docs` — gera docs locais em `docs/` e sincroniza com Confluence
+- `/jc:docs` — gera docs locais em `docs/` e sincroniza com Confluence (invocada automaticamente quando detectar necessidade de documentar)
+- Confluence REST — acesso direto ao Confluence via REST API (invocada automaticamente quando precisar ler/escrever no Confluence)
 - `/jc:context` — gera contexto do projeto (CLAUDE.md + .context/)
 - `/jc:onboarding` — apresenta o projeto e responde dúvidas de arquitetura
 - Design System — ativo automaticamente ao criar componentes UI
