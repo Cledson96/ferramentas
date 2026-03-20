@@ -54,6 +54,16 @@ Skills versionadas nesta v1:
 - `playwright`
 - `project-context`
 
+## Papel Das Skills Figma
+
+- `figma`: skill base tecnica para setup, autenticacao, verificacao e troubleshooting do Figma MCP.
+- `figma-implement-design`: skill principal para implementar componentes e telas com fidelidade 1:1 a partir de nodes/links do Figma.
+
+Regra pratica:
+
+- Se o problema for conectividade/configuracao MCP, use `figma`.
+- Se o pedido for aplicar design em frontend, use `figma-implement-design`.
+
 ## Como usar
 
 Leia primeiro:

@@ -17,8 +17,8 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 | --- | --- | --- | --- | --- |
 | `confluence-docs` | Fluxo editorial de docs no Confluence | separa templates e sincronizacao da integracao base | `confluence-rest`, credenciais Atlassian, Node | Codex primeiro, possivel em Claude/OpenCode |
 | `confluence-rest` | Operacoes diretas no Confluence via REST | cobre leitura e escrita fora do MCP | Atlassian REST, credenciais Confluence, Node | Codex primeiro, possivel em Claude/OpenCode |
-| `figma` | Base de trabalho com Figma MCP | da contexto de design e assets | Figma MCP | Alto potencial de reuso |
-| `figma-implement-design` | Implementacao fiel de design | workflow focado em design-to-code | Figma MCP | Alto potencial de reuso |
+| `figma` | Setup e diagnostico do Figma MCP | separa infraestrutura tecnica da implementacao de UI | Figma MCP | Alto potencial de reuso |
+| `figma-implement-design` | Implementacao fiel de design em frontend | skill principal de design-to-code com validacao 1:1 | Figma MCP | Alto potencial de reuso |
 | `gh-address-comments` | Tratar comentarios em PR | fluxo operacional recorrente de review | `gh` autenticado | Alto potencial de reuso |
 | `gh-fix-ci` | Diagnostico de CI em PR | cobre investigacao de falhas em Actions | `gh` autenticado, GitHub Actions | Alto potencial de reuso |
 | `jc-commit` | Commit padronizado da JusCash | padrao local recorrente | Git, naming da branch | Mais especifica de Codex/JusCash |
@@ -41,5 +41,6 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 - `.system` ficou explicitamente de fora.
 - `confluence-rest` passa a ser a skill base de Confluence neste repositorio.
 - `confluence-docs` concentra templates e fluxo editorial de documentacao usando `confluence-rest` como base operacional.
+- `figma` fica restrita a setup e troubleshooting MCP; `figma-implement-design` concentra fluxo completo de implementacao de interface.
 - As skills da familia `jc-*` representam seu fluxo mais especifico de trabalho e foram preservadas como pacote.
 - Skills mais genericas como `playwright`, `project-context`, `jira-*`, `confluence-rest`, `figma*` e `gh-*` ficam bem posicionadas para reaproveitamento futuro em `claude/` e `opencode`.

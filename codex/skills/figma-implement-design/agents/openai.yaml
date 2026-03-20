@@ -1,9 +1,9 @@
 interface:
   display_name: "Figma Implement Design"
-  short_description: "Turn Figma designs into production-ready code"
+  short_description: "Implementacao de frontend 1:1 a partir de design do Figma"
   icon_small: "./assets/figma-small.svg"
   icon_large: "./assets/figma.png"
-  default_prompt: "Implement this Figma design in this codebase, matching layout, states, and responsive behavior."
+  default_prompt: "Implemente o design do Figma em codigo de producao com fidelidade visual de 1:1, seguindo o fluxo completo (design context, variable defs, screenshot, assets, traducao para convencoes do projeto e validacao final). Se houver falha de MCP, resolva setup/diagnostico via skill figma e retome a implementacao."
 
 dependencies:
   tools:
