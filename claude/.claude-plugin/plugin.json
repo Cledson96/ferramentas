@@ -1,0 +1,12 @@
+{
+  "name": "jc",
+  "version": "1.0.0",
+  "description": "Workflow padronizado da JusCash: skills de commit, PR, review, docs, e agents de QA e DevOps",
+  "author": {
+    "name": "Cledson Souza",
+    "url": "https://juscash.atlassian.net"
+  },
+  "repository": "https://github.com/Cledson1996/claude",
+  "license": "MIT",
+  "keywords": ["juscash", "workflow", "jira", "conventional-commits", "design-system"]
+}

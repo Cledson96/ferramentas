@@ -1,0 +1,5 @@
+.orphaned_at
+.claude/settings.local.json
+node_modules/
+Thumbs.db
+.DS_Store
