@@ -49,7 +49,6 @@ Skills versionadas nesta v1:
 - `jc-qa-agent`
 - `jc-review`
 - `jc-start-feature`
-- `jira-confluence`
 - `jira-rest`
 - `playwright`
 - `project-context`

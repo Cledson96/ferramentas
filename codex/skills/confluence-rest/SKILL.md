@@ -1,11 +1,17 @@
 ---
 name: confluence-rest
-description: Use para trabalhar com Confluence via REST API direta da Atlassian, sem usar MCP. Acione quando o usuario pedir para buscar, ler, criar ou atualizar paginas do Confluence, executar CQL, abrir links de paginas, consultar conteudo do espaco Tech/DT, descobrir pageId, criar paginas filhas com parentId ou operar conteudo em Storage Format.
+description: Use para trabalhar com Confluence e documentacao no Confluence via API direta da Atlassian, sem usar MCP. Acione quando o usuario mencionar Confluence ou pedir para buscar, ler, criar, atualizar, comentar, sincronizar, puxar, importar ou organizar paginas e documentacao, executar CQL, abrir links de paginas, descobrir pageId, criar paginas filhas com parentId, consultar espacos como Tech/DT ou operar conteudo em Storage Format XHTML.
 ---
 
 # Skill: Confluence REST
 
-Use o script global `confluence.js` desta skill para toda integracao com Confluence via REST direta.
+Use o script global `confluence.js` desta skill para toda integracao com Confluence e para qualquer fluxo de documentacao no Confluence.
+
+Esta e a skill padrao de Confluence do repositorio.
+
+- sempre use esta skill quando o pedido mencionar Confluence
+- sempre use esta skill quando a tarefa envolver atualizar, sincronizar, puxar, importar ou organizar documentacao no Confluence
+- nao usar MCP para fluxos de Confluence desta skill
 
 ## Script
 
@@ -90,21 +96,22 @@ Heuristica de selecao:
 ## Fluxo padrao
 
 1. Se o pedido trouxer um link do Confluence, extrair o `pageId` da URL e comecar com `get`.
-2. Se o pedido for busca ampla, usar `search` com CQL.
-3. Se o pedido mencionar explicitamente CQL, executar a consulta exatamente como pedida.
-4. Se o pedido for resumir conteudo, chamar `get` e sintetizar o corpo retornado.
-5. Se o pedido for puxar documentacao para o repositorio, comecar sempre pela pagina pai, verificar a arvore com `tree` e decidir quais paginas devem ser baixadas.
-6. Ao puxar documentacao para o repositorio, usar sempre a pasta `docs/` como destino padrao.
-7. Antes do download, ver apenas metadados leves da arvore, como `pageId`, `title`, `parentId`, `depth` e `url`.
-8. Deixar a IA decidir apenas quais paginas baixar e qual nome cada arquivo deve ter em `docs/`, sem ler o corpo da pagina.
-9. Usar `pull-pages` para o download em lote e para gravar os arquivos localmente.
-10. Se a tarefa for documentacao tecnica, consultar antes a pagina raiz de templates `843415557` e escolher o template aderente ao contexto.
-11. Ao salvar localmente, manter sempre o corpo exatamente como veio do Confluence em Storage Format XHTML, sem formatar, normalizar ou converter.
-12. Preservar todos os atributos, macros e configuracoes da pagina, incluindo `ac:*`, `ri:*`, `data-*`, `ac:local-id` e `ac:macro-id`.
-13. Se o pedido for criar pagina, usar `create` com `spaceId` padrao `164069` quando o usuario nao informar outro.
-14. Se o pedido for criar uma subpagina, incluir `parentId`.
-15. Se o pedido for atualizar pagina, preservar o titulo esperado e deixar o script calcular a versao automaticamente.
-16. Em qualquer alteracao, resumir exatamente o que foi criado ou atualizado.
+2. Se o pedido mencionar Confluence ou documentacao no Confluence, usar esta skill mesmo que o usuario nao fale em REST.
+3. Se o pedido for busca ampla, usar `search` com CQL.
+4. Se o pedido mencionar explicitamente CQL, executar a consulta exatamente como pedida.
+5. Se o pedido for resumir conteudo, chamar `get` e sintetizar o corpo retornado.
+6. Se o pedido for puxar documentacao para o repositorio, comecar sempre pela pagina pai, verificar a arvore com `tree` e decidir quais paginas devem ser baixadas.
+7. Ao puxar documentacao para o repositorio, usar sempre a pasta `docs/` como destino padrao.
+8. Antes do download, ver apenas metadados leves da arvore, como `pageId`, `title`, `parentId`, `depth` e `url`.
+9. Deixar a IA decidir apenas quais paginas baixar e qual nome cada arquivo deve ter em `docs/`, sem ler o corpo da pagina.
+10. Usar `pull-pages` para o download em lote e para gravar os arquivos localmente.
+11. Se a tarefa for documentacao tecnica, consultar antes a pagina raiz de templates `843415557` e escolher o template aderente ao contexto.
+12. Ao salvar localmente, manter sempre o corpo exatamente como veio do Confluence em Storage Format XHTML, sem formatar, normalizar ou converter.
+13. Preservar todos os atributos, macros e configuracoes da pagina, incluindo `ac:*`, `ri:*`, `data-*`, `ac:local-id` e `ac:macro-id`.
+14. Se o pedido for criar pagina, usar `create` com `spaceId` padrao `164069` quando o usuario nao informar outro.
+15. Se o pedido for criar uma subpagina, incluir `parentId`.
+16. Se o pedido for atualizar pagina, preservar o titulo esperado e deixar o script calcular a versao automaticamente.
+17. Em qualquer alteracao, resumir exatamente o que foi criado ou atualizado.
 
 ## Comandos principais
 
@@ -143,6 +150,7 @@ node .../confluence.js update --page-id 769196193 --title "Pagina Atualizada" --
 ## Guardrails
 
 - Nao usar MCP para nenhuma operacao desta skill.
+- Nao encaminhar tarefas de Confluence para outra skill do repositorio.
 - Nao salvar credenciais no repositorio.
 - Nao assumir outro espaco se o pedido for ambiguo e `DT` fizer sentido como default.
 - Nao ler o corpo XHTML das paginas quando o objetivo for apenas importar documentacao para o repositorio.

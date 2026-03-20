@@ -4,12 +4,12 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 
 ## Resumo do lote
 
-- total de skills: 19
+- total de skills: 18
 - skills de sistema copiadas: 0
 - skills com `scripts/`: 7
 - skills com `references/`: 2
 - skills com `assets/`: 5
-- skills com `agents/openai.yaml` embutido: 19
+- skills com `agents/openai.yaml` embutido: 18
 
 ## Skills versionadas
 
@@ -30,7 +30,6 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 | `jc-qa-agent` | QA profundo pre-PR | valida aceite, testes e riscos | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
 | `jc-review` | Review completo da branch | reforca padroes e qualidade | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
 | `jc-start-feature` | Inicio de feature por card Jira | prepara branch, contexto e plano | Jira, Git, eventualmente Context7 | Mais especifica de Codex/JusCash |
-| `jira-confluence` | Operacoes Atlassian via ferramentas conectadas | caminho padrao quando MCP esta disponivel | Jira/Confluence tools conectadas | Alto potencial de reuso |
 | `jira-rest` | Operacoes Jira via REST | fallback util fora do MCP | Atlassian REST, credenciais Jira, Node | Alto potencial de reuso |
 | `playwright` | Automacao de navegador | skill utilitaria de alto valor | Playwright/browser tools | Alto potencial de reuso |
 | `project-context` | Geracao e manutencao de contexto leve | melhora onboarding e economia de tokens | Node, `npx`, Repomix | Alto potencial de reuso |
@@ -39,5 +38,6 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 
 - O lote inicial replica o conjunto atual de skills customizadas mantidas no seu ambiente local.
 - `.system` ficou explicitamente de fora.
+- `confluence-rest` passa a ser a skill unica de Confluence neste repositorio.
 - As skills da familia `jc-*` representam seu fluxo mais especifico de trabalho e foram preservadas como pacote.
 - Skills mais genericas como `playwright`, `project-context`, `jira-*`, `confluence-rest`, `figma*` e `gh-*` ficam bem posicionadas para reaproveitamento futuro em `claude/` e `opencode`.
