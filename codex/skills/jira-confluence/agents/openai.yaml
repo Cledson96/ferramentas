@@ -1,4 +1,0 @@
-interface:
-  display_name: "Jira and Confluence"
-  short_description: "Acesse Jira e Confluence no Codex"
-  default_prompt: "Use $jira-confluence para buscar e operar no Jira e no Confluence via Atlassian."

@@ -15,6 +15,7 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 
 | Skill | Papel principal | Por que entrou na v1 | Dependencias externas | Reuso futuro |
 | --- | --- | --- | --- | --- |
+| `confluence-docs` | Fluxo editorial de docs no Confluence | separa templates e sincronizacao da integracao base | `confluence-rest`, credenciais Atlassian, Node | Codex primeiro, possivel em Claude/OpenCode |
 | `confluence-rest` | Operacoes diretas no Confluence via REST | cobre leitura e escrita fora do MCP | Atlassian REST, credenciais Confluence, Node | Codex primeiro, possivel em Claude/OpenCode |
 | `figma` | Base de trabalho com Figma MCP | da contexto de design e assets | Figma MCP | Alto potencial de reuso |
 | `figma-implement-design` | Implementacao fiel de design | workflow focado em design-to-code | Figma MCP | Alto potencial de reuso |
@@ -30,7 +31,6 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 | `jc-qa-agent` | QA profundo pre-PR | valida aceite, testes e riscos | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
 | `jc-review` | Review completo da branch | reforca padroes e qualidade | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
 | `jc-start-feature` | Inicio de feature por card Jira | prepara branch, contexto e plano | Jira, Git, eventualmente Context7 | Mais especifica de Codex/JusCash |
-| `jira-confluence` | Operacoes Atlassian via ferramentas conectadas | caminho padrao quando MCP esta disponivel | Jira/Confluence tools conectadas | Alto potencial de reuso |
 | `jira-rest` | Operacoes Jira via REST | fallback util fora do MCP | Atlassian REST, credenciais Jira, Node | Alto potencial de reuso |
 | `playwright` | Automacao de navegador | skill utilitaria de alto valor | Playwright/browser tools | Alto potencial de reuso |
 | `project-context` | Geracao e manutencao de contexto leve | melhora onboarding e economia de tokens | Node, `npx`, Repomix | Alto potencial de reuso |
@@ -39,5 +39,7 @@ Este inventario registra o primeiro lote de skills versionadas em [codex/skills]
 
 - O lote inicial replica o conjunto atual de skills customizadas mantidas no seu ambiente local.
 - `.system` ficou explicitamente de fora.
+- `confluence-rest` passa a ser a skill base de Confluence neste repositorio.
+- `confluence-docs` concentra templates e fluxo editorial de documentacao usando `confluence-rest` como base operacional.
 - As skills da familia `jc-*` representam seu fluxo mais especifico de trabalho e foram preservadas como pacote.
 - Skills mais genericas como `playwright`, `project-context`, `jira-*`, `confluence-rest`, `figma*` e `gh-*` ficam bem posicionadas para reaproveitamento futuro em `claude/` e `opencode`.

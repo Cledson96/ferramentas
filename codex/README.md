@@ -34,6 +34,7 @@ O conjunto inicial desta pasta foi sincronizado do ambiente local em `C:\Users\C
 
 Skills versionadas nesta v1:
 
+- `confluence-docs`
 - `confluence-rest`
 - `figma`
 - `figma-implement-design`
@@ -49,7 +50,6 @@ Skills versionadas nesta v1:
 - `jc-qa-agent`
 - `jc-review`
 - `jc-start-feature`
-- `jira-confluence`
 - `jira-rest`
 - `playwright`
 - `project-context`

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Confluence Docs"
+  short_description: "Fluxo editorial de docs tecnicas no Confluence"
+  default_prompt: "Use $confluence-docs para importar, atualizar, organizar ou sincronizar documentacao tecnica entre o repositorio e o Confluence usando a skill base $confluence-rest, e delegue operacoes mecanicas para gpt-5.4-mini com reasoning medium quando os parametros ja estiverem definidos."

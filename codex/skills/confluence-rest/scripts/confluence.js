@@ -55,7 +55,6 @@ function getAuthCandidates() {
   const codeHome = process.env.CODEX_HOME || path.join(homedir, ".codex");
 
   return [
-    "C:\\Users\\Cledson Souza\\.codex\\atlassian.json",
     path.join(codeHome, "atlassian.json"),
     path.join(homedir, ".codex", "atlassian.json"),
     path.join(homedir, ".claude", "atlassian.json"),
@@ -79,8 +78,10 @@ function loadAuth() {
         expectedShape: {
           baseUrl: "https://juscash.atlassian.net",
           email: "usuario@empresa.com",
-          apiToken: "token_atlassian",
+          token: "token_atlassian",
         },
+        nextStep:
+          "Peca ao usuario baseUrl, email e token. Depois execute o comando setup desta skill para salvar as credenciais globalmente.",
       },
     });
   }
@@ -105,23 +106,23 @@ function loadAuth() {
 
   const baseUrl = normalizeBaseUrl(parsed.baseUrl || "");
   const email = String(parsed.email || "").trim();
-  const apiToken = String(parsed.apiToken || parsed.token || "").trim();
+  const token = String(parsed.token || parsed.apiToken || "").trim();
 
-  if (!baseUrl || !email || !apiToken) {
+  if (!baseUrl || !email || !token) {
     fail("Atlassian credentials file is missing required fields.", {
       details: {
         path: existingPath,
-        required: ["baseUrl", "email", "apiToken"],
-        acceptedTokenKeys: ["apiToken", "token"],
+        required: ["baseUrl", "email", "token"],
+        acceptedTokenKeys: ["token", "apiToken"],
       },
     });
   }
 
-  return { path: existingPath, baseUrl, email, apiToken };
+  return { path: existingPath, baseUrl, email, token };
 }
 
 function buildAuthHeader(auth) {
-  return `Basic ${Buffer.from(`${auth.email}:${auth.apiToken}`).toString("base64")}`;
+  return `Basic ${Buffer.from(`${auth.email}:${auth.token}`).toString("base64")}`;
 }
 
 function parseJsonSafe(text) {
@@ -547,6 +548,7 @@ async function updatePage(auth, args) {
 }
 
 function setupCredentials(args) {
+  const baseUrl = requireArg(args, "base-url");
   const email = requireArg(args, "email");
   const token = requireArg(args, "token");
   const primaryPath = getAuthCandidates()[0];
@@ -556,7 +558,7 @@ function setupCredentials(args) {
     primaryPath,
     JSON.stringify(
       {
-        baseUrl: "https://juscash.atlassian.net",
+        baseUrl,
         email,
         token,
       },
@@ -570,6 +572,7 @@ function setupCredentials(args) {
     ok: true,
     command: "setup",
     path: primaryPath,
+    baseUrl: normalizeBaseUrl(baseUrl),
     email,
   };
 }
@@ -580,7 +583,7 @@ Confluence CLI — REST direta
 Uso: node confluence.js <comando> [opcoes]
 
 Comandos:
-  setup    --email <email> --token <api-token>
+  setup    --base-url <url> --email <email> --token <api-token>
   search   --cql "<query CQL>" [--limit 25]
   get      --page-id <id> [--body-format storage]
   children --page-id <id> [--limit 250]
@@ -590,12 +593,19 @@ Comandos:
   update   --page-id <id> --title "<titulo>" --body-file <path>
 
 Credenciais:
-  - C:\\Users\\Cledson Souza\\.codex\\atlassian.json
   - $CODEX_HOME/atlassian.json
   - ~/.codex/atlassian.json
   - ~/.claude/atlassian.json
 
+Formato canonico:
+  {
+    "baseUrl": "https://juscash.atlassian.net",
+    "email": "usuario@empresa.com",
+    "token": "token_atlassian"
+  }
+
 Exemplos em pwsh:
+  node confluence.js setup --base-url "https://juscash.atlassian.net" --email "usuario@empresa.com" --token "TOKEN"
   node confluence.js search --cql 'space = "DT" AND title ~ "API"'
   node confluence.js get --page-id 769196193
   node confluence.js children --page-id 770441364
