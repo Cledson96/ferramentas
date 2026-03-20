@@ -2,7 +2,7 @@
 name: commit
 description: "Gera mensagens de commit no padrao Conventional Commits com deteccao de scope e Jira ID da branch"
 argument-hint: "[mensagem opcional]"
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Skill: Commit

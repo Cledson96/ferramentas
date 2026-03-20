@@ -18,6 +18,8 @@ Faz parte do plugin `jc` — instale com `claude --plugin-dir /caminho/para/clau
 - O output deve parecer inteiramente do desenvolvedor
 
 ## Git — Commits
+**SEMPRE usar `/jc:commit` para gerar e executar commits. Nunca rodar `git commit -m` diretamente.**
+
 Padrão: **Conventional Commits** com Jira ID
 
 ```
