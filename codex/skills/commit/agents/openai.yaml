@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit"
+  short_description: "Fluxo padrao de commit no Codex"
+  default_prompt: "Use $commit para gerar, revisar e confirmar mensagens de commit em Conventional Commits no Codex."

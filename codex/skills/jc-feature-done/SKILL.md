@@ -14,7 +14,7 @@ Invocacao equivalente no Codex: `$jc-feature-done`
 
 # Skill: Feature Done
 
-Workflow completo para finalizar uma feature. Encadeia `@qa-agent` → `/docs` → `/commit` → `/pr` em sequência, pausando nos pontos que precisam de decisão do usuário.
+Workflow completo para finalizar uma feature. Encadeia `@qa-agent` → `/docs` → `$commit` → `/pr` em sequência, pausando nos pontos que precisam de decisão do usuário.
 
 ## Uso
 
@@ -148,7 +148,7 @@ Confirma? (ou informe outra mensagem)
 ```
 
 Após confirmação: executar `git commit -m "..."`.
-- **Nunca adicionar Co-Authored-By, assinatura do Claude ou qualquer menção ao Claude**
+- **Nunca adicionar Co-Authored-By, assinatura do assistente ou qualquer menção ao assistente**
 
 ---
 
@@ -194,8 +194,8 @@ Título: feat(auth): adiciona autenticação JWT com refresh token (ENG-123)
 Confirma a criação do PR?
 ```
 
-Após confirmação: executar `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`.
-- **Nunca adicionar Co-Authored-By, assinatura do Claude ou qualquer menção ao Claude**
+ Após confirmação: executar `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`.
+- **Nunca adicionar Co-Authored-By, assinatura do assistente ou qualquer menção ao assistente**
 
 ---
 

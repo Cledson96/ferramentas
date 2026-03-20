@@ -192,7 +192,7 @@ Confluence: "7. API Endpoints SIJ" — sincronizado (versão 9)
 
 Lembre-se de commitar os docs locais:
   git add docs/
-  /commit
+  $commit
 ```
 
 ---
