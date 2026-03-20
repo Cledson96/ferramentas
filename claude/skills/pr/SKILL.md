@@ -32,19 +32,26 @@ Quando o usuário executar `/pr`, siga estes passos na ordem:
 1. Use `getAccessibleAtlassianResources` para obter o `cloudId`
 2. Use `getJiraIssue` com o `cloudId` e o código da task para obter:
    - `summary` (título da task)
-   - `description` (descrição)
+   - `description` (descrição completa com critérios de aceite)
    - `issuetype.name` (tipo: Bug, Story, Task, etc.)
    - `status.name` (status atual)
    - `priority.name` (prioridade)
+3. Extraia os critérios de aceite da descrição (buscar por bullets, checkboxes ou seção "critérios de aceite" / "acceptance criteria")
 
-### Passo 3 — Analisar as mudanças no código
+### Passo 3 — Detectar branch base e analisar mudanças
 
-Execute em paralelo:
-- `git log main..HEAD --oneline` — lista de commits da branch
-- `git diff main...HEAD --stat` — arquivos alterados com resumo
-- `git diff main...HEAD` — diff completo para entender o que mudou
+Execute `git branch -r` e detecte a branch base nesta ordem de prioridade:
+- `origin/development` → usar `development`
+- `origin/develop` → usar `develop`
+- `origin/main` → usar `main`
+- `origin/master` → usar `master`
 
-Analise os diffs para gerar uma descrição técnica clara do que foi alterado.
+Em seguida, execute em paralelo:
+- `git log {BASE}..HEAD --oneline` — lista de commits da branch
+- `git diff {BASE}...HEAD --stat` — arquivos alterados com resumo
+- `git diff {BASE}...HEAD` — diff completo para entender o que mudou
+
+Analise os diffs para gerar uma descrição técnica clara do que foi alterado e para validar os critérios de aceite.
 
 ### Passo 4 — Determinar o tipo de mudança
 
@@ -83,35 +90,42 @@ Use EXATAMENTE este template, preenchendo com as informações coletadas:
 
 ---
 
-### Imagens ou evidências (se aplicável)
-{Peça ao usuário se tem prints/screenshots para incluir. Se não tiver, escreva "N/A"}
-
----
-
 ### Notas adicionais
 - Card Jira: {status atual} | Prioridade: {prioridade}
 - {Links para issues ou subtarefas relacionadas, se houver}
+
+#### Critérios de aceite
+{Se o card Jira foi encontrado, listar cada critério com status:}
+- [x] {critério implementado — evidência encontrada no diff}
+- [ ] {critério não implementado} _(motivo ou explicação, ex: "será implementado na próxima sprint")_
+
+{Se não houver card Jira, omitir esta subseção.}
 
 ---
 
 [{CÓDIGO-DA-TASK}](https://juscash.atlassian.net/browse/{CÓDIGO-DA-TASK})
 ```
 
-### Passo 6 — Perguntar ao usuário
+### Passo 6 — Confirmar com o usuário
 
 Antes de criar a PR, mostre o corpo montado e pergunte:
-1. "Tem screenshots ou prints de teste para incluir?"
-2. "Quer ajustar algo no texto antes de criar a PR?"
+
+```
+Quer ajustar algo antes de criar a PR? (confirme para criar ou informe os ajustes)
+```
+
+Aguarde a resposta. Se pedir ajustes, aplique e mostre novamente. Se confirmar, avance para o Passo 7.
 
 ### Passo 7 — Criar a PR
 
 Após confirmação do usuário, execute:
 
 ```bash
-gh pr create --title "{TÍTULO DA TASK} - [{CÓDIGO-DA-TASK}]" --body "{CORPO DA PR}" --base main
+gh pr create --title "{TÍTULO DA TASK} - [{CÓDIGO-DA-TASK}]" --body "$(cat <<'EOF'
+{CORPO DA PR}
+EOF
+)" --base {BASE}
 ```
-
-Use HEREDOC para o body para preservar a formatação markdown.
 
 **Importante:** nunca adicionar menção ao Claude, co-autoria ou qualquer assinatura na PR. O conteúdo deve ser inteiramente do usuário.
 
@@ -121,4 +135,4 @@ Use HEREDOC para o body para preservar a formatação markdown.
 /pr ENG-123
 ```
 
-Resultado: busca o card ENG-123 no Jira, analisa os commits e diffs da branch atual vs main, monta a PR com o template preenchido, e cria via `gh pr create`.
+Resultado: busca o card ENG-123 no Jira, detecta branch base, analisa os commits e diffs, monta a PR com template + checklist de critérios de aceite, e cria via `gh pr create`.
