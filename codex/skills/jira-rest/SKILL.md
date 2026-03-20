@@ -1,6 +1,6 @@
 ---
 name: jira-rest
-description: Use para trabalhar com Jira via REST API direta da Atlassian, sem usar MCP. Acione quando o usuario pedir para buscar, ler, criar, editar, comentar, transicionar, registrar worklog, listar projetos, descobrir tipos de issue, ver campos obrigatorios, executar JQL ou relacionar tickets do Jira. Tambem use quando o pedido mencionar Jira, Atlassian, ticket, card, bug, story, task, issue keys como ABC-123, JQL, transicao, comentario, worklog, criacao ou edicao de issue.
+description: Use para trabalhar com Jira via API REST direta da Atlassian, sem usar MCP. Acione quando o usuario pedir para buscar, ler, criar, editar, comentar, transicionar, registrar worklog, listar projetos, descobrir tipos de issue, ver campos obrigatorios, executar JQL ou relacionar tickets do Jira. Tambem use quando o pedido mencionar Jira, Atlassian, ticket, card, bug, story, task, issue keys como ABC-123, JQL, transicao, comentario, worklog, criacao ou edicao de issue.
 ---
 
 # Skill: Jira REST
@@ -9,7 +9,7 @@ Use o script global `jira.js` desta skill para toda integracao com Jira via REST
 
 ## Script
 
-No Codex, use:
+Depois que a skill estiver instalada em `${CODEX_HOME:-$HOME/.codex}/skills/jira-rest`, use:
 
 ```bash
 node ${CODEX_HOME:-$HOME/.codex}/skills/jira-rest/scripts/jira.js <comando> [opcoes]
@@ -17,28 +17,35 @@ node ${CODEX_HOME:-$HOME/.codex}/skills/jira-rest/scripts/jira.js <comando> [opc
 
 O script:
 
-- le credenciais do arquivo global `C:\Users\Cledson Souza\.codex\atlassian.json`
-- aceita tambem os formatos equivalentes em `$CODEX_HOME/atlassian.json`, `~/.codex/atlassian.json` e `~/.claude/atlassian.json`
-- aceita `apiToken` ou `token`
-- nunca grava credenciais no repositorio
+- le credenciais globais em `$CODEX_HOME/atlassian.json`
+- aceita tambem `~/.codex/atlassian.json` como fallback e `~/.claude/atlassian.json` como compatibilidade legada
+- usa `baseUrl`, `email` e `token` como formato canonico
+- aceita `apiToken` apenas como compatibilidade de leitura
+- nunca grava credenciais no repositorio nem dentro da pasta da skill
 - sempre retorna JSON
 
 ## Credenciais
 
-Esperar este formato minimo:
+O formato canonico e:
 
 ```json
 {
   "baseUrl": "https://juscash.atlassian.net",
   "email": "usuario@empresa.com",
-  "apiToken": "token_atlassian"
+  "token": "token_atlassian"
 }
 ```
 
+Se o arquivo nao existir:
+
+- pedir ao usuario `baseUrl`, `email` e `token`
+- salvar globalmente com `setup`
+- nunca criar esse arquivo dentro do repositorio
+
 Compatibilidade:
 
-- se o arquivo usar `token` em vez de `apiToken`, aceitar ambos
-- se faltar `baseUrl`, `email` ou token, interromper e orientar o usuario a corrigir `atlassian.json`
+- se o arquivo usar `apiToken` em vez de `token`, aceitar ambos na leitura
+- se faltar `baseUrl`, `email` ou `token`, interromper com erro claro e orientar o usuario a corrigir o arquivo global
 
 ## Fluxo padrao
 

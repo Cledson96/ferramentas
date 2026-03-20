@@ -1,42 +1,49 @@
 ---
 name: figma
-description: Use the Figma MCP server to fetch design context, screenshots, variables, and assets from Figma, and to translate Figma nodes into production code. Trigger when a task involves Figma URLs, node IDs, design-to-code implementation, or Figma MCP setup and troubleshooting.
+description: Use o servidor MCP do Figma para obter contexto de design, screenshots, variaveis e assets do Figma, e para traduzir nodes do Figma em codigo de producao. Acione quando a tarefa envolver URLs do Figma, node IDs, implementacao design-to-code ou configuracao e resolucao de problemas do Figma MCP.
 ---
 
 # Figma MCP
 
-Use the Figma MCP server for Figma-driven implementation. For setup and debugging details (env vars, config, verification), see `references/figma-mcp-config.md`.
+Use o servidor MCP do Figma para implementacoes guiadas por Figma. Para detalhes de configuracao e depuracao (variaveis de ambiente, config, verificacao), veja `references/figma-mcp-config.md`.
 
-## Figma MCP Integration Rules
-These rules define how to translate Figma inputs into code for this project and must be followed for every Figma-driven change.
+## Regras De Integracao Figma MCP
 
-### Required flow (do not skip)
-1. Run get_design_context first to fetch the structured representation for the exact node(s).
-2. If the response is too large or truncated, run get_metadata to get the high-level node map and then re-fetch only the required node(s) with get_design_context.
-3. Run get_screenshot for a visual reference of the node variant being implemented.
-4. Only after you have both get_design_context and get_screenshot, download any assets needed and start implementation.
-5. Translate the output (usually React + Tailwind) into this project's conventions, styles and framework. Reuse the project's color tokens, components, and typography wherever possible.
-6. Validate against Figma for 1:1 look and behavior before marking complete.
+Estas regras definem como traduzir entradas do Figma em codigo para este projeto e devem ser seguidas em toda mudanca guiada por Figma.
 
-### Implementation rules
-- Treat the Figma MCP output (React + Tailwind) as a representation of design and behavior, not as final code style.
-- Replace Tailwind utility classes with the project's preferred utilities/design-system tokens when applicable.
-- Reuse existing components (e.g., buttons, inputs, typography, icon wrappers) instead of duplicating functionality.
-- Use the project's color system, typography scale, and spacing tokens consistently.
-- Respect existing routing, state management, and data-fetch patterns already adopted in the repo.
-- Strive for 1:1 visual parity with the Figma design. When conflicts arise, prefer design-system tokens and adjust spacing or sizes minimally to match visuals.
-- Validate the final UI against the Figma screenshot for both look and behavior.
+### Fluxo obrigatorio (nao pular)
 
-### Asset handling
-- The Figma MCP Server provides an assets endpoint which can serve image and SVG assets.
-- IMPORTANT: If the Figma MCP Server returns a localhost source for an image or an SVG, use that image or SVG source directly.
-- IMPORTANT: DO NOT import/add new icon packages, all the assets should be in the Figma payload.
-- IMPORTANT: do NOT use or create placeholders if a localhost source is provided.
+1. Execute `get_design_context` primeiro para obter a representacao estruturada do node exato.
+2. Se a resposta estiver grande demais ou truncada, execute `get_metadata` para obter o mapa de nodes em alto nivel e depois refaca a consulta apenas para os nodes necessarios com `get_design_context`.
+3. Sempre traga `get_variable_defs` para o componente ou node que estiver sendo implementado, para reproduzir variaveis, cores, espacamentos e tokens com mais fidelidade.
+4. Execute `get_screenshot` para ter uma referencia visual da variante do node que sera implementada.
+5. So depois de ter `get_design_context`, `get_variable_defs` e `get_screenshot`, baixe qualquer asset necessario e comece a implementacao.
+6. Traduza a saida, normalmente React + Tailwind, para as convencoes, estilos e framework deste projeto. Reaproveite tokens de cor, componentes, tipografia e variaveis do projeto sempre que possivel.
+7. Valide contra o Figma para fidelidade de 1:1 em visual e comportamento antes de marcar como concluido.
 
-### Link-based prompting
-- The server is link-based: copy the Figma frame/layer link and give that URL to the MCP client when asking for implementation help.
-- The client cannot browse the URL but extracts the node ID from the link; always ensure the link points to the exact node/variant you want.
+### Regras De Implementacao
 
-## References
-- `references/figma-mcp-config.md` — setup, verification, troubleshooting, and link-based usage reminders.
-- `references/figma-tools-and-prompts.md` — tool catalog and prompt patterns for selecting frameworks/components and fetching metadata.
+- Trate a saida do Figma MCP, normalmente React + Tailwind, como representacao de design e comportamento, nao como estilo final de codigo.
+- Substitua classes utilitarias do Tailwind pelos tokens/utilitarios preferidos do projeto quando aplicavel.
+- Reaproveite componentes existentes, como botoes, inputs, tipografia e wrappers de icone, em vez de duplicar funcionalidade.
+- Use de forma consistente o sistema de cores, a escala tipografica, os tokens de espaco e as variaveis do projeto.
+- Respeite os padroes de routing, state management e fetch de dados ja adotados no repo.
+- Busque fidelidade visual de 1:1 com o design do Figma. Quando houver conflito, prefira os tokens do design system e ajuste espacamentos ou tamanhos minimamente para bater com o visual.
+- Valide a UI final contra a screenshot do Figma tanto em aparencia quanto em comportamento.
+
+### Tratamento De Assets
+
+- O servidor MCP do Figma fornece um endpoint de assets que pode servir imagens e SVGs.
+- IMPORTANTE: se o Figma MCP retornar uma fonte `localhost` para uma imagem ou SVG, use essa imagem ou SVG diretamente.
+- IMPORTANTE: NAO importe/adicione novos pacotes de icones; todos os assets devem vir no payload do Figma.
+- IMPORTANTE: nao use nem crie placeholders se uma fonte `localhost` for fornecida.
+
+### Prompt Baseado Em Link
+
+- O servidor e baseado em link: copie o link do frame/layer do Figma e passe essa URL para o cliente MCP quando pedir ajuda para implementacao.
+- O cliente nao navega na URL, mas extrai o node ID do link; sempre garanta que o link aponte para o node/variacao exata que voce quer.
+
+## Referencias
+
+- `references/figma-mcp-config.md` — configuracao, verificacao, troubleshooting e lembretes de uso baseado em link.
+- `references/figma-tools-and-prompts.md` — catalogo de ferramentas e padroes de prompt para selecionar frameworks/componentes e buscar metadata.
