@@ -14,7 +14,7 @@ Invocacao equivalente no Codex: `$jc-feature-done`
 
 # Skill: Feature Done
 
-Workflow completo para finalizar uma feature. Encadeia `@qa-agent` → `/docs` → `$commit` → `/pr` em sequência, pausando nos pontos que precisam de decisão do usuário.
+Workflow completo para finalizar uma feature. Encadeia `@qa-agent` → `/docs` → `$commit` → `$pull-request` em sequencia, pausando nos pontos que precisam de decisao do usuario.
 
 ## Uso
 
@@ -194,7 +194,7 @@ Título: feat(auth): adiciona autenticação JWT com refresh token (ENG-123)
 Confirma a criação do PR?
 ```
 
- Após confirmação: executar `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`.
+ Apos confirmacao: usar o fluxo da skill `github-terminal` para criar/publicar a PR com `title`, `body`, `base` e `head`.
 - **Nunca adicionar Co-Authored-By, assinatura do assistente ou qualquer menção ao assistente**
 
 ---

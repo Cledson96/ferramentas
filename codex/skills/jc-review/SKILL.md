@@ -121,7 +121,7 @@ Base: `{branch-base}` | {N} arquivos alterados | {N} commits
 
 ---
 Pronto para PR? {Sim | Não — corrija os bloqueadores acima}
-Após corrigir: execute `/pr` para criar a PR.
+Após corrigir: execute `$pull-request` para criar a PR.
 ```
 
 ### Passo 6 — Sugerir correções

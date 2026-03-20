@@ -25,7 +25,7 @@ Este inventario registra o estado atual das skills versionadas em [codex/skills]
 | `jc-devops-agent` | Checklist de deploy e risco | apoio forte no fim da feature | contexto do repo, infra do projeto | Mais especifica de Codex/JusCash |
 | `jc-feature-done` | Workflow completo de encerramento | encadeia review, docs, commit e PR | Git, GitHub, Jira, Confluence | Mais especifica de Codex/JusCash |
 | `jc-onboarding` | Onboarding tecnico | acelera leitura de projeto | contexto local do repo | Pode ser adaptada depois |
-| `jc-pr` | Abertura de PR padronizada | operacionaliza PR com contexto Jira | `gh`, Jira | Pode ser adaptada depois |
+| `pull-request` | Abertura de PR padronizada | operacionaliza PR com contexto Jira e base dinamica | `github-terminal`, Jira | Pode ser adaptada depois |
 | `jc-qa-agent` | QA profundo pre-PR | valida aceite, testes e riscos | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
 | `jc-review` | Review completo da branch | reforca padroes e qualidade | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
 | `jc-start-feature` | Inicio de feature por card Jira | prepara branch, contexto e plano | Jira, Git, eventualmente Context7 | Mais especifica de Codex/JusCash |
