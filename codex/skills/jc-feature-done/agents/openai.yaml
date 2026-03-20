@@ -1,0 +1,4 @@
+interface:
+  display_name: "JC Feature Done"
+  short_description: "Fluxo JusCash de Feature Done no Codex"
+  default_prompt: "Use $jc-feature-done para executar o fluxo JusCash equivalente no Codex."

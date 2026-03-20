@@ -1,0 +1,4 @@
+interface:
+  display_name: "Confluence REST"
+  short_description: "Use Confluence via REST direta no Codex"
+  default_prompt: "Use $confluence-rest para consultar ou operar paginas do Confluence via REST API direta."

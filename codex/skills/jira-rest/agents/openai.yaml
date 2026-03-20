@@ -1,0 +1,4 @@
+interface:
+  display_name: "Jira REST"
+  short_description: "Use Jira via REST direta no Codex"
+  default_prompt: "Use $jira-rest para consultar ou operar no Jira via REST API direta."

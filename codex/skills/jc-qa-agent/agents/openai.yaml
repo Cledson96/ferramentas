@@ -1,0 +1,4 @@
+interface:
+  display_name: "JC Qa Agent"
+  short_description: "Agente JusCash de Qa Agent no Codex"
+  default_prompt: "Use $jc-qa-agent para executar a analise especializada equivalente no Codex."
