@@ -1,16 +1,13 @@
 ---
-name: jc-commit
-description: "Gera mensagens de commit no padrao Conventional Commits com deteccao de scope e Jira ID da branch. Use quando o usuario mencionar /jc:commit, pedir esse workflow da JusCash ou quiser o comportamento equivalente do plugin jc no Codex."
+name: commit
+description: "Gera mensagens de commit no padrao Conventional Commits com deteccao de scope e Jira ID da branch. Use quando o usuario quiser gerar, revisar ou executar um commit no Codex."
 ---
 
 ## Uso No Codex
 
 Skill global adaptada do plugin `jc`.
 
-Invocacao original no Claude: `/jc:commit`
-
-Invocacao equivalente no Codex: `$jc-commit`
-
+Invocacao equivalente no Codex: `$commit`
 
 # Skill: Commit
 
@@ -19,7 +16,7 @@ Gera mensagens de commit no padrão Conventional Commits, com ID do Jira quando 
 ## Uso
 
 ```
-/commit [mensagem opcional]
+$commit [mensagem opcional]
 ```
 
 ## Template
@@ -40,9 +37,9 @@ docs(readme): atualiza instruções de instalação (ENG-789)
 
 > O `(TASK-ID)` é omitido se não houver card identificado.
 
-## Instruções para o Claude
+## Instruções da skill
 
-Quando o usuário executar `/commit`, siga estes passos:
+Quando houver intenção de commit, siga estes passos:
 
 ### Passo 1 — Verificar o que está staged
 
@@ -58,8 +55,9 @@ Se não houver nada staged (`git diff --cached` retornar vazio):
 ### Passo 2 — Identificar o TASK-ID do Jira
 
 Execute `git branch --show-current` e extraia o código da task usando regex:
-- Padrão: sequência de letras maiúsculas + hífen + números (ex: `ENG-123`, `TASK-456`, `JUS-789`)
-- Exemplos de branches: `feature/ENG-123-descricao`, `fix/JUS-456`, `ENG-789-nova-feature`
+- Padrão: sequência de letras maiúsculas + hífen + números em qualquer ponto do nome da branch (ex: `ENG-123`, `TASK-456`, `JUS-789`)
+- Exemplos de branches: `feature/ENG-123-descricao`, `fix/JUS-456`, `ENG-789-nova-feature`, `release/JUS-101-ajuste`
+- Se existirem mais de uma correspondência, prefira a que estiver mais próxima do começo da branch e parecer mais ligada ao card principal
 - Se não encontrar, o TASK-ID será omitido da mensagem (não é obrigatório)
 
 ### Passo 3 — Inferir os campos da mensagem
@@ -88,10 +86,11 @@ Analise o diff e os arquivos alterados para determinar:
 - Máximo 72 caracteres na linha inteira
 - Sem ponto final
 - Seja específico: "corrige validação de CPF" é melhor que "corrige bug"
+- Se a descrição exceder 72 caracteres, reduza o texto até caber sem perder o essencial; se ainda ficar ambíguo, mostre a versão curta e peça confirmação
 
 ### Passo 4 — Se o usuário passou uma mensagem como argumento
 
-Se o usuário escreveu `/commit "minha mensagem"` ou `/commit adiciona autenticação`:
+Se o usuário escreveu `$commit "minha mensagem"` ou `$commit adiciona autenticação`:
 - Use a mensagem do usuário como base para a **descrição**
 - Ainda infira o **type** e **scope** automaticamente pelo diff
 - Monte a mensagem final no formato correto
@@ -121,6 +120,7 @@ Após confirmação, execute:
 git commit -m "type(scope): descrição (TASK-ID)"
 ```
 
-**Importante:** nunca adicionar `Co-Authored-By`, assinatura do Claude ou qualquer metadado além da mensagem do commit. O commit deve conter apenas a mensagem gerada.
+**Importante:** nunca adicionar `Co-Authored-By`, assinatura do assistente ou qualquer metadado além da mensagem do commit. O commit deve conter apenas a mensagem gerada.
 
 Mostre o resultado do commit (hash e arquivos incluídos).
+

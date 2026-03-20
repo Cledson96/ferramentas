@@ -38,12 +38,10 @@ Skills versionadas nesta v1:
 - `confluence-rest`
 - `figma`
 - `figma-implement-design`
-- `gh-address-comments`
-- `gh-fix-ci`
-- `jc-commit`
+- `github-terminal`
+- `commit`
 - `jc-design-system`
 - `jc-devops-agent`
-- `jc-docs`
 - `jc-feature-done`
 - `jc-onboarding`
 - `jc-pr`
@@ -78,3 +76,5 @@ Leia primeiro:
 - Conteudo de sistema fica fora do repositorio.
 - Ao adicionar nova skill, prefira incluir so o necessario para ela funcionar: `SKILL.md`, `scripts/`, `references/`, `assets/` e `agents/` embutidos se existirem.
 - Se uma skill depender de MCP, documente a dependencia em `docs/` antes de considerar versionar qualquer artefato adicional.
+- `github-terminal` e a skill GitHub unica do repositorio e substitui os fluxos anteriores baseados em `gh`.
+- `commit` e a skill padrao para gerar, revisar e executar commits no repo.

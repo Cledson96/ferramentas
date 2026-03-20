@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitHub Terminal"
+  short_description: GitHub no terminal sem gh
+  default_prompt: "Use PowerShell como padrao e Git Bash apenas por caminho explicito para trabalhar com GitHub sem gh."

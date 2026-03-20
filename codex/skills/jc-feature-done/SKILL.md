@@ -14,7 +14,7 @@ Invocacao equivalente no Codex: `$jc-feature-done`
 
 # Skill: Feature Done
 
-Workflow completo para finalizar uma feature. Encadeia `@qa-agent` → `/docs` → `/commit` → `/pr` em sequência, pausando nos pontos que precisam de decisão do usuário.
+Workflow completo para finalizar uma feature. Encadeia `@qa-agent` → `/docs` → `$commit` → `/pr` em sequência, pausando nos pontos que precisam de decisão do usuário.
 
 ## Uso
 
@@ -110,13 +110,13 @@ Se sim, informe qual página do Confluence cada arquivo deve atualizar
 Se não, responda "pular".
 ```
 
-Se confirmar: sincronizar via script `confluence.js` empacotado na skill global `jc-docs`.
+Se confirmar: sincronizar via script `confluence.js` empacotado na skill global `confluence-rest`.
 
-1. Converter o Markdown para Confluence Storage Format (XHTML com macros nativos — ver referência em `/docs` skill)
+1. Converter o Markdown para Confluence Storage Format (XHTML com macros nativos — ver referência na skill `confluence-docs`)
 2. Salvar o XHTML em arquivo temporário
-3. Buscar página: `node ${CODEX_HOME:-$HOME/.codex}/skills/jc-docs/scripts/confluence.js search --cql 'space = "DT" AND title = "..."'`
-4. Atualizar: `node ${CODEX_HOME:-$HOME/.codex}/skills/jc-docs/scripts/confluence.js update --page-id <ID> --title "..." --body-file <temp>`
-5. Ou criar: `node ${CODEX_HOME:-$HOME/.codex}/skills/jc-docs/scripts/confluence.js create --title "..." --body-file <temp> --parent-id <ID>`
+3. Buscar página: `node ${CODEX_HOME:-$HOME/.codex}/skills/confluence-rest/scripts/confluence.js search --cql 'space = "DT" AND title = "..."'`
+4. Atualizar: `node ${CODEX_HOME:-$HOME/.codex}/skills/confluence-rest/scripts/confluence.js update --page-id <ID> --title "..." --body-file <temp>`
+5. Ou criar: `node ${CODEX_HOME:-$HOME/.codex}/skills/confluence-rest/scripts/confluence.js create --title "..." --body-file <temp> --parent-id <ID>`
 
 ---
 
@@ -148,7 +148,7 @@ Confirma? (ou informe outra mensagem)
 ```
 
 Após confirmação: executar `git commit -m "..."`.
-- **Nunca adicionar Co-Authored-By, assinatura do Claude ou qualquer menção ao Claude**
+- **Nunca adicionar Co-Authored-By, assinatura do assistente ou qualquer menção ao assistente**
 
 ---
 
@@ -194,8 +194,8 @@ Título: feat(auth): adiciona autenticação JWT com refresh token (ENG-123)
 Confirma a criação do PR?
 ```
 
-Após confirmação: executar `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`.
-- **Nunca adicionar Co-Authored-By, assinatura do Claude ou qualquer menção ao Claude**
+ Após confirmação: executar `gh pr create --title "..." --body "$(cat <<'EOF' ... EOF)"`.
+- **Nunca adicionar Co-Authored-By, assinatura do assistente ou qualquer menção ao assistente**
 
 ---
 
