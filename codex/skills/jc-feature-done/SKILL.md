@@ -110,13 +110,13 @@ Se sim, informe qual página do Confluence cada arquivo deve atualizar
 Se não, responda "pular".
 ```
 
-Se confirmar: sincronizar via script `confluence.js` empacotado na skill global `jc-docs`.
+Se confirmar: sincronizar via script `confluence.js` empacotado na skill global `confluence-rest`.
 
-1. Converter o Markdown para Confluence Storage Format (XHTML com macros nativos — ver referência em `/docs` skill)
+1. Converter o Markdown para Confluence Storage Format (XHTML com macros nativos — ver referência na skill `confluence-docs`)
 2. Salvar o XHTML em arquivo temporário
-3. Buscar página: `node ${CODEX_HOME:-$HOME/.codex}/skills/jc-docs/scripts/confluence.js search --cql 'space = "DT" AND title = "..."'`
-4. Atualizar: `node ${CODEX_HOME:-$HOME/.codex}/skills/jc-docs/scripts/confluence.js update --page-id <ID> --title "..." --body-file <temp>`
-5. Ou criar: `node ${CODEX_HOME:-$HOME/.codex}/skills/jc-docs/scripts/confluence.js create --title "..." --body-file <temp> --parent-id <ID>`
+3. Buscar página: `node ${CODEX_HOME:-$HOME/.codex}/skills/confluence-rest/scripts/confluence.js search --cql 'space = "DT" AND title = "..."'`
+4. Atualizar: `node ${CODEX_HOME:-$HOME/.codex}/skills/confluence-rest/scripts/confluence.js update --page-id <ID> --title "..." --body-file <temp>`
+5. Ou criar: `node ${CODEX_HOME:-$HOME/.codex}/skills/confluence-rest/scripts/confluence.js create --title "..." --body-file <temp> --parent-id <ID>`
 
 ---
 

@@ -42,7 +42,6 @@ Skills versionadas nesta v1:
 - `commit`
 - `jc-design-system`
 - `jc-devops-agent`
-- `jc-docs`
 - `jc-feature-done`
 - `jc-onboarding`
 - `jc-pr`

@@ -4,12 +4,12 @@ Este inventario registra o estado atual das skills versionadas em [codex/skills]
 
 ## Resumo do lote
 
-- total de skills: 18
+- total de skills: 17
 - skills de sistema copiadas: 0
-- skills com `scripts/`: 6
+- skills com `scripts/`: 5
 - skills com `references/`: 2
 - skills com `assets/`: 8
-- skills com `agents/openai.yaml` embutido: 19
+- skills com `agents/openai.yaml` embutido: 18
 
 ## Skills versionadas
 
@@ -23,7 +23,6 @@ Este inventario registra o estado atual das skills versionadas em [codex/skills]
 | `commit` | Commit padronizado da JusCash | padrao local recorrente | Git, naming da branch | Mais especifica de Codex/JusCash |
 | `jc-design-system` | Regras do design system JusCash | importante para UI consistente | design system do projeto, eventualmente Figma | Mais especifica de Codex/JusCash |
 | `jc-devops-agent` | Checklist de deploy e risco | apoio forte no fim da feature | contexto do repo, infra do projeto | Mais especifica de Codex/JusCash |
-| `jc-docs` | Documentacao tecnica e Confluence | fecha ciclo de documentacao | Node, Confluence, Atlassian | Mais especifica de Codex/JusCash |
 | `jc-feature-done` | Workflow completo de encerramento | encadeia review, docs, commit e PR | Git, GitHub, Jira, Confluence | Mais especifica de Codex/JusCash |
 | `jc-onboarding` | Onboarding tecnico | acelera leitura de projeto | contexto local do repo | Pode ser adaptada depois |
 | `jc-pr` | Abertura de PR padronizada | operacionaliza PR com contexto Jira | `gh`, Jira | Pode ser adaptada depois |

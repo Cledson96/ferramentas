@@ -1,4 +1,0 @@
-interface:
-  display_name: "JC Docs"
-  short_description: "Fluxo JusCash de Docs no Codex"
-  default_prompt: "Use $jc-docs para executar o fluxo JusCash equivalente no Codex."
