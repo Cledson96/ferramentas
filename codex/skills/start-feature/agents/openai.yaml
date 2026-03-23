@@ -1,0 +1,4 @@
+interface:
+  display_name: "Start Feature"
+  short_description: "Inicia task com Jira, branch, contexto e plano"
+  default_prompt: "Use $start-feature para iniciar uma task a partir do Jira, preparar a branch e sugerir um plano de implementacao."
