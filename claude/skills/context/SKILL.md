@@ -1,151 +1,94 @@
 ---
 name: context
-description: "Gera contexto completo do projeto via MCP ai-coders-context e condensa num CLAUDE.md"
-disable-model-invocation: true
+description: "Gera contexto do projeto usando Repomix e atualiza o CLAUDE.md. Acione com /jc:context, quando abrir um projeto pela primeira vez, quando o projeto nao tiver CLAUDE.md local, ou quando precisar atualizar o contexto."
 ---
 
 # Skill: Context
 
-Gera contexto completo de um projeto usando o MCP ai-coders-context e condensa num CLAUDE.md.
+Gera contexto completo de um projeto usando Repomix como motor e atualiza o CLAUDE.md automaticamente.
 
 ## Uso
 
 ```
-/context
+/jc:context
 ```
 
-## Instruções para o Claude
+## Instrucoes para o Claude
 
-Quando o usuário executar `/context`, siga estes passos:
+Quando o usuario executar `/jc:context`, siga estes passos:
 
-### Passo 1 — Inicializar contexto via MCP ai-coders-context
+### Passo 1 — Gerar contexto com Repomix
 
-Use os gateways do MCP na seguinte ordem:
+Executar o script de contexto do plugin:
 
-1. Chamar o gateway `context` com ação `init` — escaneia o projeto e cria a estrutura `.context/`
-2. Chamar o gateway `context` com ação `fill` — preenche todos os docs automaticamente (project-overview, architecture, patterns, decisions, data-flow, etc.)
-3. Chamar o gateway `agent` com ação `discover` — descobre quais agents são relevantes para o tipo de projeto
-
-Isso gera a pasta `.context/` completa:
-```
-.context/
-├── docs/      → project-overview, architecture, patterns, decisions, data-flow, etc.
-├── agents/    → playbooks dos 14 agents especializados
-├── plans/     → workflow PREVC
-└── skills/    → expertise sob demanda
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/project-context.js ensure
 ```
 
-### Passo 2 — Condensar no CLAUDE.md
+O script retorna JSON. Interpretar:
+- `reused: true` — contexto ja existia e esta atualizado
+- `command: "ensure"` com `previousStatus` — contexto foi regenerado (era stale ou nao existia)
+- `ok: false` — erro, mostrar mensagem ao usuario
 
-Disparar 1 agent com modelo Haiku (`model: "haiku"`) para ler os docs em `.context/docs/` e gerar um `CLAUDE.md` conciso na raiz do projeto.
+Se o script falhar (ex: `npx repomix` nao disponivel), informar o usuario e orientar a instalar Node.js/npm.
 
-O agent Haiku deve ler estes arquivos (se existirem):
-- `.context/docs/project-overview.md`
-- `.context/docs/architecture.md`
-- `.context/docs/patterns.md`
-- `.context/docs/decisions.md`
-- `.context/docs/data-flow.md`
-- `.context/docs/tooling.md`
-- `.context/docs/testing-strategy.md`
+O script gera automaticamente:
 
-E produzir o CLAUDE.md no seguinte formato:
+**Artefatos em `.context/`:**
+- `.context/project-context.md` — resumo rico e primario com: visao geral, stack, database, folder map, entry points, convencoes, hot files, token hotspots
+- `.context/context-meta.json` — metadata de geracao e staleness
+- `.context/repomix/repomix-output.xml` — snapshot completo do repo
+- `.context/repomix/repomix-compressed.xml` — versao comprimida (menos tokens)
+- `.context/repomix/repomix-structure.xml` — estrutura sem conteudo de arquivos
+- `.context/repomix/token-count-tree.txt` — mapa de custo em tokens
 
-```markdown
-# Contexto do Projeto
+**Bloco gerenciado no CLAUDE.md:**
+O script insere/atualiza automaticamente um bloco delimitado por `<!-- project-context:managed:start/end -->` no CLAUDE.md com ponteiros para `.context/`.
 
-## Visão geral
-{Resumo do project-overview: nome, propósito, o que o projeto faz}
+### Passo 2 — Mostrar resultado
 
-## Tech stack
-- Linguagem: {ex: TypeScript}
-- Framework: {ex: NestJS}
-- Banco: {ex: PostgreSQL com Prisma}
-- Testes: {ex: Jest}
-- {Outras ferramentas relevantes}
+Mostrar ao usuario:
+- Se o contexto foi criado, reusado ou atualizado
+- Quantos artefatos Repomix foram gerados
+- Destaques do `.context/project-context.md` (stack, entry points, convencoes detectadas)
 
-## Arquitetura
-{Resumo do architecture: como o sistema está organizado, camadas, módulos}
-
-## Estrutura de pastas
-{Árvore principal com descrição de cada pasta-chave, ex:}
-- `src/` — código principal
-- `src/modules/` — módulos de domínio
-- `src/shared/` — utilitários compartilhados
-- `tests/` — testes
-
-## Padrões e convenções
-{Resumo do patterns:}
-- Naming: {camelCase, snake_case, etc.}
-- Commits: Conventional Commits com Jira ID (usar skill /commit)
-- PRs: template padronizado (usar skill /pr)
-- Imports: {absolutos, relativos, aliases}
-- {Outros padrões}
-
-## Arquivos-chave
-- `src/main.ts` — entry point
-- `src/app.module.ts` — módulo raiz
-- {outros arquivos importantes com descrição}
-
-## Comandos úteis
-- `npm run dev` — dev server
-- `npm test` — testes
-- `npm run build` — build
-- {outros scripts do package.json}
-
-## Decisões técnicas
-{Resumo do decisions: escolhas importantes e seus motivos}
-
-## Design System (se o projeto usar @juscash/design-system)
-- Importar componentes de `@juscash/design-system` (NUNCA do `antd` direto)
-- Ícones: usar `LucideIcons` de `@juscash/design-system`
-- Storybook: https://juscash.github.io/design-system/
-- Quando receber link do Figma, usar MCP Figma para extrair o design e mapear para componentes da biblioteca
-- Ver skill `/design-system` para lista completa de componentes
-
-## Skills disponíveis
-- `/commit` — commit padronizado com Conventional Commits + Jira ID
-- `/pr` — PR com template e contexto do Jira
-- `/context` — regenerar este arquivo
-
-## Workflow de desenvolvimento (MCP ai-coders-context)
-
-Ao receber uma tarefa de código, SEMPRE usar o MCP:
-
-1. **Antes de codar**: gateway `plan` com ação `scaffoldPlan` — criar plano PREVC
-2. **Escolher agent**: gateway `agent` com ação `getSequence` — sequência de agents recomendada
-3. **Buscar contexto**: gateway `agent` com ação `getDocs` — docs relevantes para o agent
-4. **Durante execução**: gateway `plan` com ação `updatePhase` — atualizar fase
-5. **Ao finalizar**: gateway `plan` com ação `commitPhase` — registrar no git
-
-Escala adaptativa:
-- **Fix simples**: Execution → Validation (pular Planning e Review)
-- **Feature pequena**: Planning → Execution → Validation
-- **Feature média**: Planning → Review → Execution → Validation
-- **Sistema complexo**: Planning → Review → Execution → Validation → Confirmation
+Se o usuario quiser, pode pedir para rodar `refresh` (forca regeneracao):
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/project-context.js refresh
 ```
 
-### Passo 3 — Mostrar resumo e confirmar
+### Passo 3 — Gitignore
 
-Mostre ao usuário:
-- Quantos docs foram gerados no `.context/`
-- Quais agents foram criados
-- Um resumo do CLAUDE.md gerado
-
-Pergunte: "Quer ajustar algo antes de salvar o CLAUDE.md?"
-
-Após confirmação, salvar o `CLAUDE.md` na raiz do projeto.
-
-### Passo 4 — Adicionar ao .gitignore (se necessário)
-
-Se o usuário quiser manter `.context/` fora do git (é grande), sugerir adicionar ao `.gitignore`:
+Se `.context/` nao estiver no `.gitignore`, sugerir adicionar:
 ```
 .context/
 ```
 
-O `CLAUDE.md` deve sempre ficar no git (é pequeno e útil para todos).
+O `CLAUDE.md` deve ficar no git (e pequeno e util para todos).
+
+## O que o script detecta automaticamente
+
+O contexto gerado e rico porque o script analisa:
+- **Tech stack**: Node.js, TypeScript, React, Next.js, NestJS, Prisma, Tailwind, Storybook, Docker, GitHub Actions, e dezenas de outros
+- **Database**: Prisma provider/models, servicos no docker-compose (PostgreSQL, MySQL, MongoDB, Redis, etc.)
+- **Convencoes**: ESLint, Prettier (com detalhes de config), TSConfig paths/aliases, strict mode, Husky, lint-staged, Conventional Commits
+- **Entry points**: detecta main.ts, index.tsx, app.module.ts, etc.
+- **Folder map**: mapeia proposito de cada pasta conhecida (src/, services/, hooks/, prisma/, etc.)
+- **Monorepo**: npm workspaces, pnpm, Lerna, Nx, Turborepo
+- **Hot files**: arquivos mais alterados nos ultimos 30 commits (areas de desenvolvimento ativo)
+- **Token hotspots**: custo em tokens de cada arquivo/pasta via Repomix
+
+## Fluxo padrao
+
+1. Na primeira vez no projeto, `/jc:context` gera tudo.
+2. Nas vezes seguintes, o script detecta se o contexto esta fresh e reaproveita.
+3. Se houver mudancas em arquivos monitorados (package.json, tsconfig, CLAUDE.md, prisma/schema.prisma, etc.), regenera automaticamente.
+4. Em tarefas normais, ler `.context/project-context.md` primeiro.
+5. Recorrer aos artefatos Repomix apenas quando precisar de mais detalhe.
 
 ## Quando usar
 
-- **Projeto novo**: executar `/context` para gerar tudo do zero
-- **Projeto existente sem contexto**: executar `/context` para mapear
-- **Atualizar contexto**: executar `/context` novamente para regenerar com mudanças
+- **Projeto novo**: `/jc:context` para gerar tudo do zero
+- **Projeto sem CLAUDE.md**: `/jc:context` para mapear e criar
+- **Atualizar contexto**: `/jc:context` novamente para regenerar
+- **Automaticamente**: se o projeto nao tiver CLAUDE.md local, o Claude deve sugerir executar esta skill

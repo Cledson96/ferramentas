@@ -47,7 +47,8 @@ Usar template padronizado com contexto do Jira. Executar `/pr` para gerar automa
 
 ## Contexto de projeto
 - Se o projeto não tiver `CLAUDE.md` local, executar `/jc:context` automaticamente para gerar
-- O MCP ai-coders-context está disponível para análises profundas
+- Usa Repomix como motor para gerar `.context/` com snapshots, compressão e mapa de tokens
+- Ler `.context/project-context.md` primeiro para tarefas de rotina; usar artefatos Repomix apenas quando precisar de mais detalhe
 
 ## Documentação de bibliotecas (Context7)
 - MCP Context7 (`@upstash/context7-mcp`) disponível automaticamente via plugin `jc`
