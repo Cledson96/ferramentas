@@ -52,6 +52,20 @@ Skills versionadas nesta v1:
 - `playwright`
 - `project-context`
 
+## Taxonomia do pacote
+
+O pacote `codex/skills` agora esta organizado em tres papeis principais:
+
+- **Agents analiticos**: `qa-agent`, `devops-agent`
+- **Workflows/orchestrators**: `start-feature`, `feature-done`, `pull-request`, `confluence-docs`
+- **Skills base e operacionais**: `commit`, `github-terminal`, `jira-rest`, `confluence-rest`, `project-context`, `review`, `onboarding`, `design-system`
+
+Leitura pratica:
+
+- use agents quando o valor principal for analise e julgamento tecnico
+- use workflows quando a skill precisa encadear outras skills e pausar so nos pontos de decisao
+- use skills base para integracoes, contexto, navegacao ou operacoes localizadas
+
 ## Papel Das Skills Figma
 
 - `figma`: skill base tecnica para setup, autenticacao, verificacao e troubleshooting do Figma MCP.
@@ -78,3 +92,5 @@ Leia primeiro:
 - Se uma skill depender de MCP, documente a dependencia em `docs/` antes de considerar versionar qualquer artefato adicional.
 - `github-terminal` e a skill GitHub unica do repositorio e substitui os fluxos anteriores baseados em `gh`.
 - `commit` e a skill padrao para gerar, revisar e executar commits no repo.
+- `feature-done` e o workflow principal de encerramento e orquestra `qa-agent`, `confluence-docs`, `commit` e `pull-request`.
+- Delegacao para subagente barato fica restrita a tarefas mecanicas e parametrizadas; sintese final, findings e decisoes permanecem no agente principal.

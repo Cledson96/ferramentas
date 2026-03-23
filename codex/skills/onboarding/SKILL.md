@@ -5,7 +5,7 @@ description: "Apresenta o projeto para quem esta chegando agora: explica arquite
 
 # Skill: Onboarding
 
-Use esta skill para integrar novos desenvolvedores ao projeto. Leia o contexto disponivel, apresente a arquitetura e responda perguntas de navegacao no codigo sem depender de contexto legado de Claude.
+Use esta skill para integrar novos desenvolvedores ao projeto. Leia o contexto disponivel, apresente a arquitetura e responda perguntas de navegacao no codigo com base no estado atual do repositorio.
 
 ## Uso
 

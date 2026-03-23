@@ -13,25 +13,25 @@ Este inventario registra o estado atual das skills versionadas em [codex/skills]
 
 ## Skills versionadas
 
-| Skill | Papel principal | Por que entrou na v1 | Dependencias externas | Reuso futuro |
-| --- | --- | --- | --- | --- |
-| `confluence-docs` | Fluxo editorial de docs no Confluence | separa templates e sincronizacao da integracao base | `confluence-rest`, credenciais Atlassian, Node | Codex primeiro, possivel em Claude/OpenCode |
-| `confluence-rest` | Operacoes diretas no Confluence via REST | cobre leitura e escrita fora do MCP | Atlassian REST, credenciais Confluence, Node | Codex primeiro, possivel em Claude/OpenCode |
-| `figma` | Setup e diagnostico do Figma MCP | separa infraestrutura tecnica da implementacao de UI | Figma MCP | Alto potencial de reuso |
-| `figma-implement-design` | Implementacao fiel de design em frontend | skill principal de design-to-code com validacao 1:1 | Figma MCP | Alto potencial de reuso |
-| `github-terminal` | GitHub no terminal sem gh | unifica o fluxo de uso do GitHub com PowerShell como padrao | PowerShell, `git`, GitHub API/URLs | Alto potencial de reuso |
-| `commit` | Commit padronizado da JusCash | padrao local recorrente | Git, naming da branch | Mais especifica de Codex/JusCash |
-| `design-system` | Regras do design system JusCash | importante para UI consistente | design system do projeto, eventualmente Figma | Mais especifica de Codex/JusCash |
-| `devops-agent` | Checklist de deploy e risco | apoio forte antes de staging ou producao | contexto do repo, infra do projeto | Mais especifica de Codex/JusCash |
-| `feature-done` | Workflow completo de encerramento | encadeia review, docs, commit e PR | Git, GitHub, Jira, Confluence | Mais especifica de Codex/JusCash |
-| `onboarding` | Onboarding tecnico | acelera leitura de projeto | contexto local do repo | Pode ser adaptada depois |
-| `pull-request` | Abertura de PR padronizada | operacionaliza PR com contexto Jira e base dinamica | `github-terminal`, Jira | Pode ser adaptada depois |
-| `qa-agent` | QA profundo pre-PR | valida aceite, testes e riscos | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
-| `review` | Review completo da branch | reforca padroes e qualidade | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
-| `start-feature` | Inicio de feature por card Jira | prepara branch, contexto e plano | Jira, Git, `project-context` | Mais especifica de Codex/JusCash |
-| `jira-rest` | Operacoes Jira via REST | fallback util fora do MCP | Atlassian REST, credenciais Jira, Node | Alto potencial de reuso |
-| `playwright` | Automacao de navegador | skill utilitaria de alto valor | Playwright/browser tools | Alto potencial de reuso |
-| `project-context` | Geracao e manutencao de contexto leve | melhora onboarding e economia de tokens | Node, `npx`, Repomix | Alto potencial de reuso |
+| Skill | Tipo | Papel principal | Por que entrou na v1 | Dependencias externas | Reuso futuro |
+| --- | --- | --- | --- | --- | --- |
+| `confluence-docs` | Workflow | Fluxo editorial de docs no Confluence | separa templates e sincronizacao da integracao base | `confluence-rest`, credenciais Atlassian, Node | Codex primeiro, possivel em Claude/OpenCode |
+| `confluence-rest` | Base | Operacoes diretas no Confluence via REST | cobre leitura e escrita fora do MCP | Atlassian REST, credenciais Confluence, Node | Codex primeiro, possivel em Claude/OpenCode |
+| `figma` | Base | Setup e diagnostico do Figma MCP | separa infraestrutura tecnica da implementacao de UI | Figma MCP | Alto potencial de reuso |
+| `figma-implement-design` | Workflow | Implementacao fiel de design em frontend | skill principal de design-to-code com validacao 1:1 | Figma MCP | Alto potencial de reuso |
+| `github-terminal` | Base | GitHub no terminal sem gh | unifica o fluxo de uso do GitHub com PowerShell como padrao | PowerShell, `git`, GitHub API/URLs | Alto potencial de reuso |
+| `commit` | Base | Commit padronizado da JusCash | padrao local recorrente | Git, naming da branch | Mais especifica de Codex/JusCash |
+| `design-system` | Base | Regras do design system JusCash | importante para UI consistente | design system do projeto, eventualmente Figma | Mais especifica de Codex/JusCash |
+| `devops-agent` | Agent | Checklist de deploy e risco | apoio forte antes de staging ou producao | contexto do repo, infra do projeto | Mais especifica de Codex/JusCash |
+| `feature-done` | Workflow | Workflow completo de encerramento | encadeia review, docs, commit e PR | Git, GitHub, Jira, Confluence | Mais especifica de Codex/JusCash |
+| `onboarding` | Base | Onboarding tecnico | acelera leitura de projeto | contexto local do repo | Pode ser adaptada depois |
+| `pull-request` | Workflow | Abertura de PR padronizada | operacionaliza PR com contexto Jira e base dinamica | `github-terminal`, Jira | Pode ser adaptada depois |
+| `qa-agent` | Agent | QA profundo pre-PR | valida aceite, testes e riscos | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
+| `review` | Base | Review completo da branch | reforca padroes e qualidade | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
+| `start-feature` | Workflow | Inicio de feature por card Jira | prepara branch, contexto e plano | Jira, Git, `project-context` | Mais especifica de Codex/JusCash |
+| `jira-rest` | Base | Operacoes Jira via REST | fallback util fora do MCP | Atlassian REST, credenciais Jira, Node | Alto potencial de reuso |
+| `playwright` | Base | Automacao de navegador | skill utilitaria de alto valor | Playwright/browser tools | Alto potencial de reuso |
+| `project-context` | Base | Geracao e manutencao de contexto leve | melhora onboarding e economia de tokens | Node, `npx`, Repomix | Alto potencial de reuso |
 
 ## Observacoes de curadoria
 
@@ -41,5 +41,6 @@ Este inventario registra o estado atual das skills versionadas em [codex/skills]
 - `confluence-docs` concentra templates e fluxo editorial de documentacao usando `confluence-rest` como base operacional.
 - `figma` fica restrita a setup e troubleshooting MCP; `figma-implement-design` concentra fluxo completo de implementacao de interface.
 - `github-terminal` concentra o uso de GitHub no terminal sem depender de `gh`, com PowerShell como padrao.
-- As skills da familia `jc-*` representam seu fluxo mais especifico de trabalho e foram preservadas como pacote.
+- O pacote foi consolidado em papeis explicitos de `Agent`, `Workflow` e `Base`.
 - Skills mais genericas como `playwright`, `project-context`, `jira-*`, `confluence-rest`, `figma*` e `github-terminal` ficam bem posicionadas para reaproveitamento futuro em `claude/` e `opencode`.
+- Delegacao barata fica restrita a tarefas mecanicas e parametrizadas; findings, sintese final e decisoes continuam no agente principal.

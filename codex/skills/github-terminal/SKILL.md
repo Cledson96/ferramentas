@@ -44,6 +44,22 @@ Se o Git Bash estiver instalado em outro caminho, ajuste o bin explicitamente.
 - Se nao houver token, pare e pergunte ao usuario como ele prefere autenticar.
 - Nunca use `gh auth login` como passo inicial.
 
+## Delegacao para modelo mais barato
+
+Quando o contexto ja estiver definido e a tarefa for operacional, delegar para subagente barato usando `gpt-5.4-mini` com reasoning `medium`.
+
+Delegar apenas tarefas mecanicas e de baixo risco, por exemplo:
+- buscar e resumir comentarios extensos de PR
+- coletar checks, status e logs remotos
+- montar payloads HTTP ou URLs de acao do GitHub
+- organizar respostas JSON grandes em tabelas ou listas operacionais
+
+Manter no agente principal:
+- estrategia de investigacao
+- decisao sobre o que publicar ou responder
+- interpretacao final de CI, comentarios ou conflitos
+- qualquer mudanca local no repositorio
+
 ## Comandos uteis
 
 ```powershell
@@ -67,4 +83,3 @@ Invoke-RestMethod -Headers $headers -Uri "https://api.github.com/repos/OWNER/REP
 ```
 
 Use esse padrao para consultar PRs, issues, reviews e checks quando a informacao nao estiver disponivel localmente.
-

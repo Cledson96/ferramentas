@@ -7,6 +7,8 @@ description: "Workflow final pos-feature: revisa a branch, atualiza documentacao
 
 Workflow completo para finalizar uma feature. Encadeia `$qa-agent` -> `$confluence-docs` -> `$commit` -> `$pull-request` em sequencia, com pausas apenas onde existe risco, bloqueio ou decisao do usuario.
 
+Papel no pacote: workflow/orchestrator.
+
 ## Uso
 
 ```text
@@ -124,6 +126,16 @@ Parar apenas nestes pontos:
 - eventual passo opcional de deploy readiness
 
 Nao pausar apenas para dizer que uma fase foi concluida com sucesso.
+
+### Delegacao no workflow
+
+Este workflow orquestra outras skills. Sempre que uma fase for especializada, usar a skill responsavel em vez de reimplementar o comportamento:
+- `$qa-agent` para QA profundo
+- `$confluence-docs` para documentacao tecnica
+- `$commit` para mensagem e execucao de commit
+- `$pull-request` para preparacao e publicacao da PR
+
+Se uma dessas skills tiver delegacao barata para tarefas mecanicas, ela deve acontecer dentro da skill especializada, nao no workflow principal.
 
 ### Resumo final
 

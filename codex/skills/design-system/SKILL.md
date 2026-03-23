@@ -3,10 +3,6 @@ name: design-system
 description: "Regras de uso do @juscash/design-system para UI no Codex: componentes, icones LucideIcons e implementacao a partir de Figma. Use ao criar ou alterar telas, componentes React ou qualquer fluxo de interface."
 ---
 
-## Uso No Codex
-
-Invocacao no Codex: `$design-system`
-
 # Skill: Design System
 
 Garante que toda implementacao de UI use os componentes da biblioteca `@juscash/design-system`, especialmente ao trabalhar com Figma.

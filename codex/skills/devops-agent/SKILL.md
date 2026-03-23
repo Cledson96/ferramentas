@@ -166,3 +166,17 @@ Se o usuario quiser seguir com alguma acao operacional depois do relatorio, prim
 - **Baixo** - sem migration, sem breaking change e sem nova env var obrigatoria
 - **Medio** - migration reversivel, nova env var ou dependencia com impacto controlado
 - **Alto** - migration destrutiva, breaking change relevante, requisito de infraestrutura novo ou env var obrigatoria sem fallback
+
+### Politica de delegacao
+
+Mantenha no agente principal:
+- classificacao de risco
+- leitura dos impactos de deploy
+- recomendacao final de prontidao
+
+Se a branch for grande, so delegue tarefas mecanicas e de baixo risco, como:
+- listar migrations adicionadas
+- enumerar env vars novas
+- mapear arquivos de infraestrutura tocados no diff
+
+Nao delegar a analise final de risco nem o checklist consolidado.

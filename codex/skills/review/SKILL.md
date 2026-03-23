@@ -3,11 +3,6 @@ name: review
 description: "Faz code review completo da branch com foco em padroes, design system, testes e requisitos do Jira. Use quando o usuario pedir revisao tecnica antes de merge."
 ---
 
-## Uso No Codex
-
-Invocacao no Codex: `$review`
-
-
 # Skill: Review
 
 Faz code review completo da branch com foco em qualidade e risco: verifica padroes, imports do design system, testes e validacao contra requisitos do card Jira.
@@ -134,3 +129,14 @@ import { Button } from '@juscash/design-system'
 ```
 
 Pergunte ao usuário: "Quer que eu aplique essas correções automaticamente?"
+
+## Politica de delegacao
+
+Mantenha a sintese final, a severidade dos achados e a recomendacao no agente principal.
+
+Se o diff for muito grande, so delegue tarefas mecanicas e de baixo risco, como:
+- inventario de arquivos alterados
+- mapeamento de testes existentes por caminho
+- enumeracao inicial de imports, `console.log` e sinais obvios de risco
+
+Nao delegar a redacao final dos findings nem a recomendacao de merge.

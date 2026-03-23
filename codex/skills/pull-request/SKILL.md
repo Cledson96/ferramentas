@@ -3,12 +3,6 @@ name: pull-request
 description: "Cria PR com template padronizado e contexto do card Jira. Use quando o usuario quiser abrir PR no Codex, com base detectada automaticamente e publicacao orientada pela skill github-terminal."
 ---
 
-## Uso No Codex
-
-Skill global adaptada do plugin `jc`.
-
-Invocacao equivalente no Codex: `$pull-request`
-
 # Skill: Pull Request
 
 Gera Pull Requests padronizadas com contexto do Jira e fluxo de criacao sem depender de `gh` como caminho principal.
@@ -21,7 +15,7 @@ $pull-request [CODIGO-DA-TASK opcional]
 
 Se o codigo da task nao for informado, extraia do nome da branch atual (ex: `feature/TASK-123-descricao` -> `TASK-123`). Se nao encontrar, pergunte ao usuario.
 
-## Instrucoes da skill
+## Instrucoes para o Codex
 
 Quando houver intencao de abrir PR, siga estes passos na ordem:
 
@@ -130,10 +124,22 @@ Sequencia:
 2. Acionar o fluxo operacional da `github-terminal` para criacao/publicacao.
 3. Se a publicacao automatica nao for possivel, usar fallback explicito com URL de criacao da PR no GitHub preenchida com os dados.
 
+## Delegacao segura
+
+Quando `title`, `body`, `base` e `head` ja estiverem definidos, tarefas mecanicas podem ser delegadas para modelo mais barato, por exemplo:
+- validacao de upstream remoto
+- coleta de metadados remotos da PR ou do repo
+- publicacao operacional via fluxo de `github-terminal`
+
+Manter no agente principal:
+- definicao do conteudo final da PR
+- decisao sobre a branch base
+- revisao final com o usuario
+- fallback manual quando a publicacao automatica falhar
+
 ### Guardrails
 
 - nao criar PR sem confirmar base e conteudo com o usuario
 - nao adicionar assinatura do assistente ou coautoria
 - nao usar `gh` como caminho inicial
 - manter foco em `title/body` claros e verificaveis
-
