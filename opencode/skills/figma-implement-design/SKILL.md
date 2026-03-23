@@ -1,6 +1,7 @@
 ---
 name: "figma-implement-design"
 description: "Skill principal para implementar frontend a partir de designs do Figma com fidelidade visual de 1:1. Acione para qualquer pedido de criar ou ajustar componentes/telas com base em URL ou node ID do Figma, traduzindo para codigo de producao nas convencoes do projeto. Requer conexao funcional com o servidor Figma MCP."
+compatibility: opencode
 ---
 
 
@@ -12,6 +13,19 @@ Esta skill fornece um fluxo estruturado para traduzir designs do Figma em codigo
 
 Esta e a skill dona de implementacao de UI baseada em Figma.
 Se houver problema de setup, autenticacao ou conectividade MCP, use primeiro a skill `figma` para resolver a infraestrutura e depois retome aqui.
+
+## Quando Usar
+
+- Pedido de implementar componente, tela ou fluxo com base em URL ou node ID do Figma
+- Pedido de ajustar frontend existente para bater visualmente com o Figma
+- Pedido de traduzir frame, node ou screenshot do Figma em codigo de producao
+- Pedido de validar paridade visual 1:1 entre implementacao e design
+
+## Quando Nao Usar
+
+- Problema de configuracao, autenticacao OAuth ou conectividade MCP do Figma; nesses casos usar `figma`
+- Pedido apenas de setup, troubleshooting ou validacao tecnica do MCP
+- Pedido sem necessidade de implementar UI a partir de design
 
 ## Pre-Requisitos
 
@@ -193,6 +207,14 @@ Antes de marcar como concluido, valide a UI final contra a screenshot do Figma.
 - Mantenha componentes compostos e reutilizaveis
 - Adicione tipos TypeScript para as props dos componentes
 - Inclua comentarios JSDoc para componentes exportados
+
+## Guardrails
+
+- nao pular o fluxo obrigatorio antes de implementar
+- nao implementar UI por suposicao sem `get_design_context` e `get_screenshot`
+- nao adicionar bibliotecas de icones ou placeholders quando o MCP fornecer assets
+- nao tratar a saida bruta do Figma como codigo final sem adaptar para as convencoes do projeto
+- nao usar a skill `figma` para implementar UI; ela e apenas base tecnica de MCP
 
 ## Exemplos
 

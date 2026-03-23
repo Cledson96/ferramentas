@@ -1,6 +1,7 @@
 ---
 name: figma
 description: Use como skill base tecnica de Figma MCP para setup, autenticacao, diagnostico e troubleshooting de conexao. Acione quando houver problema para conectar, autenticar, configurar ou validar ferramentas MCP do Figma. Nao use para implementar telas ou componentes de frontend.
+compatibility: opencode
 ---
 
 # Figma MCP Base
