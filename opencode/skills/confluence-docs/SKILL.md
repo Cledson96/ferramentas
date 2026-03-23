@@ -6,9 +6,9 @@ compatibility: opencode
 
 # Skill: Confluence Docs
 
-Use esta skill para orquestrar documentacao tecnica no Confluence.
+Use esta skill para fluxos editoriais de documentacao tecnica no Confluence.
 
-Esta skill nao substitui a `confluence-rest`. Ela usa a `confluence-rest` como base operacional para ler arvore, puxar paginas, criar, atualizar e comentar no Confluence.
+Ela nao substitui as custom tools de Confluence. Use as tools `confluence_get`, `confluence_search`, `confluence_tree`, `confluence_pull_pages`, `confluence_create` e `confluence_update` como base operacional.
 
 ## Quando usar
 
@@ -20,16 +20,10 @@ Esta skill nao substitui a `confluence-rest`. Ela usa a `confluence-rest` como b
 
 ## Quando nao usar
 
-- quando o pedido for apenas buscar, ler, criar, atualizar, comentar, executar CQL ou descobrir `pageId` sem fluxo editorial; nesses casos usar `confluence-rest`
+- quando o pedido for apenas buscar, ler, criar, atualizar, comentar, executar CQL ou descobrir `pageId` sem fluxo editorial; nesses casos usar as tools `confluence_*`
 - quando a tarefa for uma operacao REST pontual sem necessidade de template, organizacao documental ou sincronizacao
 
 ## Dependencia operacional
-
-Para qualquer operacao de Confluence, use o script da skill instalada:
-
-```bash
-node ~/.config/opencode/skills/confluence-rest/scripts/confluence.js <comando> [opcoes]
-```
 
 Se a credencial global nao existir, pedir ao usuario:
 
@@ -37,25 +31,15 @@ Se a credencial global nao existir, pedir ao usuario:
 2. `email`
 3. `token`
 
-Depois salvar com:
+Depois orientar o setup global da integracao Atlassian antes de seguir.
 
-```bash
-node ~/.config/opencode/skills/confluence-rest/scripts/confluence.js setup --base-url "<BASE_URL>" --email "<EMAIL>" --token "<TOKEN>"
-```
-
-## Delegacao para modelo mais barato
-
-Quando a tarefa ja estiver decidida e for apenas operacional, delegar a execucao para um subagente mais barato usando:
-
-- modelo: `gpt-5.4-mini`
-- reasoning effort: `medium`
-- velocidade: normal
+## Delegacao mecanica
 
 Delegar apenas tarefas mecanicas e de baixo risco, por exemplo:
 
-- `pull-pages`
-- `create`
-- `update`
+- `confluence_pull_pages`
+- `confluence_create`
+- `confluence_update`
 - mapeamento de `pageId` para arquivos locais
 - organizacao mecanica de arquivos `.xhtml` em `docs/`
 - sincronizacao final ja definida entre repositorio e Confluence
@@ -77,11 +61,11 @@ Regras de delegacao:
 ## Fluxo padrao
 
 1. Entender se o trabalho e de importacao, edicao local, sincronizacao ou criacao do zero.
-2. Se existir pagina no Confluence, comecar pela pagina pai e usar `tree` para decidir o conjunto de paginas relevantes.
-3. Fazer pull das paginas escolhidas com `pull-pages`, salvando em `docs/` com extensao `.xhtml`.
+2. Se existir pagina no Confluence, comecar pela pagina pai e usar `confluence_tree` para decidir o conjunto de paginas relevantes.
+3. Fazer pull das paginas escolhidas com `confluence_pull_pages`, salvando em `docs/` com extensao `.xhtml`.
 4. Atualizar os arquivos locais preservando exatamente o Storage Format XHTML.
 5. Se a tarefa for documentacao tecnica, escolher o template mais aderente antes de criar ou reorganizar conteudo.
-6. So publicar com `create` ou `update` depois de revisar o XHTML local.
+6. So publicar com `confluence_create` ou `confluence_update` depois de revisar o XHTML local.
 
 ## Templates tecnicos
 

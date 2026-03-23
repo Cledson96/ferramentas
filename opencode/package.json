@@ -1,0 +1,13 @@
+{
+  "name": "opencode-global-kit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "install:global": "node ./scripts/install-global.js install",
+    "install:global:dry": "node ./scripts/install-global.js install --dry-run",
+    "status:global": "node ./scripts/install-global.js status"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "latest"
+  }
+}
