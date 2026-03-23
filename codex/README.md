@@ -43,7 +43,7 @@ Skills versionadas nesta v1:
 - `design-system`
 - `jc-devops-agent`
 - `jc-feature-done`
-- `jc-onboarding`
+- `onboarding`
 - `pull-request`
 - `jc-qa-agent`
 - `review`

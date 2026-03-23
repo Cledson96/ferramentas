@@ -1,0 +1,4 @@
+interface:
+  display_name: "Onboarding"
+  short_description: "Apresenta a arquitetura e os padroes do projeto"
+  default_prompt: "Use $onboarding para apresentar o projeto, explicar a arquitetura e responder perguntas de navegacao no codigo."
