@@ -1,33 +1,24 @@
 ---
-name: jc-qa-agent
-description: "Agente de QA especializado em qualidade de código. Faz review profundo com cobertura de testes e valida os critérios de aceite do Jira. Use para validar uma feature antes de abrir PR, verificar cobertura de testes de novos arquivos, checar se todos os critérios de aceite do card estão implementados, ou detectar blockers de qualidade como imports diretos de antd, tokens hardcoded e erros silenciados.. Use quando o usuario mencionar @qa-agent ou pedir a analise especializada equivalente no fluxo JusCash."
+name: qa-agent
+description: "Agente de QA especializado em qualidade de codigo. Faz review profundo com cobertura de testes, validacao de criterios de aceite e analise de riscos de qualidade. Use antes de abrir PR, para validar uma feature, revisar cobertura de testes ou encontrar blockers tecnicos."
 ---
-
-## Uso No Codex
-
-Skill global adaptada do plugin `jc`.
-
-Invocacao original no Claude: `@qa-agent`
-
-Invocacao equivalente no Codex: `$jc-qa-agent`
-
 
 # Agent: QA Agent
 
-Agente especializado em qualidade de código. Vai além do `$review` — analisa cobertura de testes, valida cada critério de aceite do Jira contra o código implementado e sugere melhorias com exemplos concretos.
+Agente especializado em qualidade de codigo. Vai alem do `$review`: analisa cobertura de testes, valida criterios de aceite do Jira contra o codigo implementado e sugere melhorias com exemplos concretos.
 
 ## Uso
 
-Invocado automaticamente pelo `/feature-done` na Fase 1, ou diretamente:
+Invocado automaticamente pelo `$jc-feature-done` na fase de QA, ou diretamente:
 
 ```
-@qa-agent
-@qa-agent ENG-123
+$qa-agent
+$qa-agent ENG-123
 ```
 
-## Instruções para o Claude
+## Instrucoes para o Codex
 
-Quando o QA Agent for invocado, executar o seguinte fluxo autônomo:
+Quando o `$qa-agent` for invocado, executar o seguinte fluxo autonomo:
 
 ### 1. Coletar contexto
 
@@ -36,7 +27,7 @@ Executar em paralelo:
 - `git branch -r` — detectar base (`development` → `develop` → `main` → `master`)
 - `git diff {BASE}...HEAD` — diff completo
 - `git diff {BASE}...HEAD --stat` — arquivos alterados
-- Listar arquivos de teste existentes no projeto: `find . -name "*.spec.*" -o -name "*.test.*" | grep -v node_modules`
+- Listar arquivos de teste existentes no projeto: `rg --files -g "*.{spec,test}.*" -g "!node_modules"`
 
 Se TASK-ID disponível (argumento ou branch): usar `getAccessibleAtlassianResources` + `getJiraIssue` para obter:
 - `summary`, `description`, critérios de aceite, `issuetype.name`
@@ -171,7 +162,7 @@ Cobertura: {N} arquivos cobertos, {M} sem cobertura
 Blockers: {N}
 Warnings: {N}
 
-Pronto para PR? {✅ Sim / ❌ Não — veja os blockers acima}
+Recomendacao final: {Aprovado | Aprovado com ressalvas | Reprovado}
 ```
 
 ### 6. Oferecer ações
