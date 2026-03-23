@@ -1,22 +1,10 @@
-# Dynamic Context Pruning (DCP)
+# OpenCode Plugins
 
-Plugin que reduz automaticamente o uso de tokens no OpenCode.
+## Plugins inclusos
 
-## Instalação rápida
+### 1. Dynamic Context Pruning (DCP)
 
-Adicione no seu `opencode.jsonc` do projeto:
-
-```jsonc
-{
-    "plugin": ["@tarquinen/opencode-dcp@latest"]
-}
-```
-
-## Configuração avançada
-
-Copie o arquivo `opencode-dcp.jsonc` para `~/.config/opencode/dcp.jsonc` ou para `.opencode/dcp.jsonc` no seu projeto.
-
-## Comandos
+Reduz automaticamente o uso de tokens no OpenCode.
 
 | Comando | Descrição |
 |---------|-----------|
@@ -26,13 +14,46 @@ Copie o arquivo `opencode-dcp.jsonc` para `~/.config/opencode/dcp.jsonc` ou para
 | `/dcp sweep` | Limpa tools desde última mensagem |
 | `/dcp compress` | Força compressão manual |
 | `/dcp manual on/off` | Ativa/desativa modo manual |
-| `/dcp decompress <n>` | Restaura compressão por ID |
-| `/dcp recompress <n>` | Reaplica compressão |
-
-## Estratégias
-
-- **Compress** — Compressão inteligente de trechos da conversa
-- **Deduplication** — Remove chamadas de tools repetidas
-- **Purge Errors** — Remove inputs de tools com erro após X turns
 
 Mais info: https://github.com/Opencode-DCP/opencode-dynamic-context-pruning
+
+### 2. Antigravity Auth
+
+Autenticação OAuth para usar modelos do Google Antigravity via OpenCode.
+
+**Modelos disponíveis:**
+- `antigravity-claude-opus-4-6-thinking` — Claude Opus 4.6 com extended thinking
+- `antigravity-claude-sonnet-4-6` — Claude Sonnet 4.6
+- `antigravity-gemini-3-pro` / `3.1-pro` / `3-flash` — Gemini com thinking
+- `gemini-2.5-flash` / `2.5-pro` / `3-flash-preview` — via Gemini CLI quota
+
+**Primeiro uso:** rodar `opencode auth login` para autenticar com Google.
+
+Mais info: https://github.com/NoeFabris/opencode-antigravity-auth
+
+---
+
+## Instalação
+
+Copie `opencode.jsonc` para `~/.config/opencode/opencode.json` ou adicione os plugins ao seu arquivo existente.
+
+```jsonc
+{
+    "plugin": [
+        "opencode-antigravity-auth@latest",
+        "@tarquinen/opencode-dcp@latest"
+    ]
+}
+```
+
+> **Importante:** O `antigravity-auth` deve vir **antes** do DCP na lista.
+
+## Arquivos
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `opencode.jsonc` | Config completa com plugins + modelos |
+| `opencode-dcp.jsonc` | Config avançada do DCP |
+| `opencode-antigravity.jsonc` | Config avançada do Antigravity Auth |
+
+Copie os configs avançados para `~/.config/opencode/` se quiser customizar.
