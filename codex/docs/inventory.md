@@ -28,7 +28,7 @@ Este inventario registra o estado atual das skills versionadas em [codex/skills]
 | `pull-request` | Abertura de PR padronizada | operacionaliza PR com contexto Jira e base dinamica | `github-terminal`, Jira | Pode ser adaptada depois |
 | `qa-agent` | QA profundo pre-PR | valida aceite, testes e riscos | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
 | `review` | Review completo da branch | reforca padroes e qualidade | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |
-| `jc-start-feature` | Inicio de feature por card Jira | prepara branch, contexto e plano | Jira, Git, eventualmente Context7 | Mais especifica de Codex/JusCash |
+| `start-feature` | Inicio de feature por card Jira | prepara branch, contexto e plano | Jira, Git, `project-context` | Mais especifica de Codex/JusCash |
 | `jira-rest` | Operacoes Jira via REST | fallback util fora do MCP | Atlassian REST, credenciais Jira, Node | Alto potencial de reuso |
 | `playwright` | Automacao de navegador | skill utilitaria de alto valor | Playwright/browser tools | Alto potencial de reuso |
 | `project-context` | Geracao e manutencao de contexto leve | melhora onboarding e economia de tokens | Node, `npx`, Repomix | Alto potencial de reuso |

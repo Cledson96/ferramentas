@@ -91,7 +91,7 @@ src/
 1. Configure o `.env` a partir do `.env.example`
 2. Rode `npm install` e `npm run start:dev`
 3. Explore o modulo `{modulo mais relevante para comecar}`
-4. Para iniciar sua primeira task: `$jc-start-feature ENG-{seu-id}`
+4. Para iniciar sua primeira task: `$start-feature ENG-{seu-id}`
 
 Tem alguma dúvida específica? Pode me perguntar sobre qualquer parte do projeto.
 ```

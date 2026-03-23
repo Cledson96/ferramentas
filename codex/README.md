@@ -47,7 +47,7 @@ Skills versionadas nesta v1:
 - `pull-request`
 - `qa-agent`
 - `review`
-- `jc-start-feature`
+- `start-feature`
 - `jira-rest`
 - `playwright`
 - `project-context`
