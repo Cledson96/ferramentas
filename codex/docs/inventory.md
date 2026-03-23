@@ -21,7 +21,7 @@ Este inventario registra o estado atual das skills versionadas em [codex/skills]
 | `figma-implement-design` | Implementacao fiel de design em frontend | skill principal de design-to-code com validacao 1:1 | Figma MCP | Alto potencial de reuso |
 | `github-terminal` | GitHub no terminal sem gh | unifica o fluxo de uso do GitHub com PowerShell como padrao | PowerShell, `git`, GitHub API/URLs | Alto potencial de reuso |
 | `commit` | Commit padronizado da JusCash | padrao local recorrente | Git, naming da branch | Mais especifica de Codex/JusCash |
-| `jc-design-system` | Regras do design system JusCash | importante para UI consistente | design system do projeto, eventualmente Figma | Mais especifica de Codex/JusCash |
+| `design-system` | Regras do design system JusCash | importante para UI consistente | design system do projeto, eventualmente Figma | Mais especifica de Codex/JusCash |
 | `jc-devops-agent` | Checklist de deploy e risco | apoio forte no fim da feature | contexto do repo, infra do projeto | Mais especifica de Codex/JusCash |
 | `jc-feature-done` | Workflow completo de encerramento | encadeia review, docs, commit e PR | Git, GitHub, Jira, Confluence | Mais especifica de Codex/JusCash |
 | `jc-onboarding` | Onboarding tecnico | acelera leitura de projeto | contexto local do repo | Pode ser adaptada depois |

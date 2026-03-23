@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design System"
+  short_description: "Regras de UI do design-system no Codex"
+  default_prompt: "Use $design-system para revisar ou implementar UI com @juscash/design-system e Figma."
