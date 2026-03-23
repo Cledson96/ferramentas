@@ -1,4 +1,0 @@
-interface:
-  display_name: "JC Pr"
-  short_description: "Fluxo JusCash de Pr no Codex"
-  default_prompt: "Use $jc-pr para executar o fluxo JusCash equivalente no Codex."

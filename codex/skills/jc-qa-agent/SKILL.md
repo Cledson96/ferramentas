@@ -14,7 +14,7 @@ Invocacao equivalente no Codex: `$jc-qa-agent`
 
 # Agent: QA Agent
 
-Agente especializado em qualidade de código. Vai além do `/review` — analisa cobertura de testes, valida cada critério de aceite do Jira contra o código implementado e sugere melhorias com exemplos concretos.
+Agente especializado em qualidade de código. Vai além do `$review` — analisa cobertura de testes, valida cada critério de aceite do Jira contra o código implementado e sugere melhorias com exemplos concretos.
 
 ## Uso
 
@@ -99,7 +99,7 @@ Para cada critério, analisar o diff e determinar:
 
 ### 4. Análise de qualidade profunda
 
-Além dos checks básicos do `/review`, analisar:
+Além dos checks básicos do `$review`, analisar:
 
 **Complexidade ciclomática**
 - Funções com muitos `if/else` aninhados (>3 níveis) → sugerir refatoração com early return ou strategy pattern

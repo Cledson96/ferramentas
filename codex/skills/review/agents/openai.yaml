@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review"
+  short_description: "Revisao tecnica completa da branch no Codex"
+  default_prompt: "Use $review para revisar a branch atual e reportar achados, riscos e recomendacao final."

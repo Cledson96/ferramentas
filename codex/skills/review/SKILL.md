@@ -1,30 +1,26 @@
 ---
-name: jc-review
-description: "Faz code review completo da branch — padroes, imports do design system, testes e requisitos do Jira. Usar antes de abrir PR.. Use quando o usuario mencionar /jc:review, pedir esse workflow da JusCash ou quiser o comportamento equivalente do plugin jc no Codex."
+name: review
+description: "Faz code review completo da branch com foco em padroes, design system, testes e requisitos do Jira. Use quando o usuario pedir revisao tecnica antes de merge."
 ---
 
 ## Uso No Codex
 
-Skill global adaptada do plugin `jc`.
-
-Invocacao original no Claude: `/jc:review`
-
-Invocacao equivalente no Codex: `$jc-review`
+Invocacao no Codex: `$review`
 
 
 # Skill: Review
 
-Faz code review completo da branch antes de abrir PR — verifica padrões, imports do design system, testes e valida contra os requisitos do card Jira.
+Faz code review completo da branch com foco em qualidade e risco: verifica padroes, imports do design system, testes e validacao contra requisitos do card Jira.
 
 ## Uso
 
 ```
-/review
+$review
 ```
 
-## Instruções para o Claude
+## Instrucoes para o Codex
 
-Quando o usuário executar `/review`, siga estes passos:
+Quando o usuario executar `$review`, siga estes passos:
 
 ### Passo 1 — Identificar a branch base
 
@@ -120,8 +116,7 @@ Base: `{branch-base}` | {N} arquivos alterados | {N} commits
 - {outros bloqueadores}
 
 ---
-Pronto para PR? {Sim | Não — corrija os bloqueadores acima}
-Após corrigir: execute `/pr` para criar a PR.
+Recomendacao final: {Aprovado | Aprovado com ressalvas | Reprovado}
 ```
 
 ### Passo 6 — Sugerir correções
