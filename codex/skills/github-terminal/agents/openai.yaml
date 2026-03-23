@@ -1,4 +1,4 @@
 interface:
   display_name: "GitHub Terminal"
   short_description: GitHub no terminal sem gh
-  default_prompt: "Use PowerShell como padrao e Git Bash apenas por caminho explicito para trabalhar com GitHub sem gh."
+  default_prompt: "Use PowerShell como padrao para trabalhar com GitHub sem gh e delegue apenas operacoes remotas mecanicas para gpt-5.4-mini quando o contexto ja estiver fechado."

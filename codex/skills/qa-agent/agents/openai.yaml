@@ -1,4 +1,4 @@
 interface:
-  display_name: "Qa Agent"
+  display_name: "QA Agent"
   short_description: "QA profundo com cobertura, aceite e riscos de qualidade"
   default_prompt: "Use $qa-agent para executar analise profunda de QA antes da PR."

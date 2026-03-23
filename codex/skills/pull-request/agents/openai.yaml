@@ -1,4 +1,4 @@
 interface:
   display_name: "Pull Request"
-  short_description: "Fluxo padrao de PR no Codex"
-  default_prompt: "Use $pull-request para montar, revisar e publicar PR com base dinamica e apoio da skill github-terminal."
+  short_description: "Workflow de PR com base dinamica e publicacao guiada"
+  default_prompt: "Use $pull-request para montar e revisar a PR no agente principal e delegar a publicacao operacional via github-terminal quando os parametros ja estiverem definidos."

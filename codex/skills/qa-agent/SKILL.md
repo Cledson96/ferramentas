@@ -177,3 +177,14 @@ Quer que eu:
 ```
 
 Se o usuário confirmar, aplicar as correções/gerar testes e informar os arquivos alterados.
+
+## Politica de delegacao
+
+Mantenha a validacao de criterios de aceite, a classificacao de cobertura e a recomendacao final no agente principal.
+
+Se o diff estiver muito grande, delegue apenas enumeracoes mecanicas, por exemplo:
+- localizar arquivos de teste correspondentes
+- listar funcoes novas sem testes obvios
+- mapear sinais repetitivos de imports proibidos, logs ou secrets
+
+Nao delegar a conclusao final de QA nem a classificacao dos blockers.

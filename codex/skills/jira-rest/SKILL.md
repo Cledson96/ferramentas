@@ -47,6 +47,23 @@ Compatibilidade:
 - se o arquivo usar `apiToken` em vez de `token`, aceitar ambos na leitura
 - se faltar `baseUrl`, `email` ou `token`, interromper com erro claro e orientar o usuario a corrigir o arquivo global
 
+## Delegacao para modelo mais barato
+
+Quando os parametros da operacao ja estiverem fechados, tarefas mecanicas podem ser delegadas para `gpt-5.4-mini` com reasoning `medium`.
+
+Delegar apenas:
+- buscas amplas
+- leituras em lote
+- export de comentarios
+- consultas de metadados (`projects`, `issue-types`, `fields`, `transitions`)
+- preparacao mecanica de payloads ja decididos
+
+Manter no agente principal:
+- escolha do modo de comentario
+- interpretacao de criterio de aceite
+- decisao de transicao, edicao ou resposta
+- confirmacao final de alteracoes
+
 ## Fluxo padrao
 
 1. Se o pedido trouxer uma issue key como `ABC-123`, comecar com `get`.

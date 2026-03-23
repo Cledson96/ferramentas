@@ -3,12 +3,6 @@ name: commit
 description: "Gera mensagens de commit no padrao Conventional Commits com deteccao de scope e Jira ID da branch. Use quando o usuario quiser gerar, revisar ou executar um commit no Codex."
 ---
 
-## Uso No Codex
-
-Skill global adaptada do plugin `jc`.
-
-Invocacao equivalente no Codex: `$commit`
-
 # Skill: Commit
 
 Gera mensagens de commit no padrão Conventional Commits, com ID do Jira quando disponível.
@@ -37,7 +31,7 @@ docs(readme): atualiza instruções de instalação (ENG-789)
 
 > O `(TASK-ID)` é omitido se não houver card identificado.
 
-## Instruções da skill
+## Instruções para o Codex
 
 Quando houver intenção de commit, siga estes passos:
 
@@ -124,3 +118,9 @@ git commit -m "type(scope): descrição (TASK-ID)"
 
 Mostre o resultado do commit (hash e arquivos incluídos).
 
+## Guardrails
+
+- manter este fluxo local e enxuto
+- nao delegar a sintese da mensagem de commit para subagente barato
+- nao adicionar assinatura do assistente, `Co-Authored-By` ou metadados extras
+- usar a mensagem do usuario como insumo quando ela existir, sem abrir mao da validacao pelo diff

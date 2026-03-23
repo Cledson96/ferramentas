@@ -53,6 +53,23 @@ Compatibilidade:
 - se o arquivo usar `apiToken` em vez de `token`, aceitar ambos na leitura
 - se faltar `baseUrl`, `email` ou `token`, interromper com erro claro e orientar o usuario a corrigir o arquivo global
 
+## Delegacao para modelo mais barato
+
+Quando os parametros editoriais ja estiverem fechados, tarefas mecanicas podem ser delegadas para `gpt-5.4-mini` com reasoning `medium`.
+
+Delegar apenas:
+- buscas CQL amplas
+- leitura de arvore e metadados
+- pulls em lote com `pull-pages`
+- organizacao mecanica dos resultados retornados pela API
+- preparacao operacional de `create` ou `update` ja decididos
+
+Manter no agente principal:
+- decisao sobre quais paginas entram no fluxo
+- revisao do conteudo antes de publicar
+- escolha entre criar, atualizar, puxar ou sincronizar
+- qualquer decisao editorial ou estrutural sobre a documentacao
+
 ## Defaults JusCash
 
 - usar `https://juscash.atlassian.net/wiki` como base efetiva do Confluence

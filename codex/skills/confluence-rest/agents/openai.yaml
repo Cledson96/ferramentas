@@ -1,4 +1,4 @@
 interface:
   display_name: "Confluence REST"
   short_description: "Base de integracao com Confluence no Codex"
-  default_prompt: "Use $confluence-rest para buscar, ler, comentar, puxar, criar ou atualizar paginas do Confluence via API direta, preservando Storage Format XHTML."
+  default_prompt: "Use $confluence-rest para operar no Confluence via API direta, preservando Storage Format XHTML e delegando apenas buscas, metadados e pulls mecanicos quando os parametros ja estiverem fechados."
