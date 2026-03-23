@@ -1,6 +1,7 @@
 ---
 name: start-feature
 description: "Inicia uma task a partir do Jira: resume o card, prepara a branch, carrega o contexto local do projeto e sugere um plano de implementacao antes de comecar."
+compatibility: opencode
 ---
 
 # Skill: Start Feature
@@ -8,6 +9,18 @@ description: "Inicia uma task a partir do Jira: resume o card, prepara a branch,
 Prepara o ambiente para iniciar uma task: busca o card no Jira, sugere a branch com TASK-ID, carrega o contexto do projeto e monta um plano inicial de implementacao.
 
 No OpenCode, esta skill e carregada on-demand via a ferramenta `skill`.
+
+## Quando usar
+
+- quando o usuario quiser iniciar uma task a partir de um card do Jira
+- quando for preciso preparar branch, contexto do projeto e plano inicial antes de implementar
+- quando fizer sentido traduzir criterios de aceite em um plano tecnico de execucao
+
+## Quando nao usar
+
+- quando a implementacao ja estiver em andamento e nao fizer sentido reiniciar branch e planejamento
+- quando o pedido for apenas buscar dados do Jira; nesse caso usar `jira-rest`
+- quando a tarefa nao depender de Jira, branch dedicada ou plano inicial de implementacao
 
 ## Instrucoes
 
@@ -161,3 +174,9 @@ Quando terminar a implementacao, faca um review da branch para seguir com commit
 - Nao inventar informacoes sobre o card Jira; usar apenas o que a API retornar.
 - Nao sobrescrever contexto do projeto existente sem necessidade.
 - Nao executar implementacao automaticamente; apenas sugerir o plano.
+
+## Resumo do ciclo
+
+```text
+start-feature TASK-ID -> implementacao -> review/qa -> commit -> PR
+```
