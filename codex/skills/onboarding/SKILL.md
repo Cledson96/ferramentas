@@ -1,53 +1,44 @@
 ---
-name: jc-onboarding
-description: "Apresenta o projeto ao dev novo — explica arquitetura, padroes, estrutura de pastas e responde duvidas. Usar quando um dev novo chegar ao projeto.. Use quando o usuario mencionar /jc:onboarding, pedir esse workflow da JusCash ou quiser o comportamento equivalente do plugin jc no Codex."
+name: onboarding
+description: "Apresenta o projeto para quem esta chegando agora: explica arquitetura, stack, padroes, estrutura de pastas e responde perguntas de navegacao no codigo. Use quando alguem for conhecer o repo, pedir uma visao geral tecnica ou perguntar onde uma parte do sistema funciona."
 ---
-
-## Uso No Codex
-
-Skill global adaptada do plugin `jc`.
-
-Invocacao original no Claude: `/jc:onboarding`
-
-Invocacao equivalente no Codex: `$jc-onboarding`
-
 
 # Skill: Onboarding
 
-Agente especializado em integrar novos desenvolvedores ao projeto. Lê o contexto do projeto (CLAUDE.md, .context/, docs/, código), apresenta a arquitetura, explica os padrões do time e responde perguntas sobre como as coisas funcionam.
+Use esta skill para integrar novos desenvolvedores ao projeto. Leia o contexto disponivel, apresente a arquitetura e responda perguntas de navegacao no codigo sem depender de contexto legado de Claude.
 
 ## Uso
 
 ```
-/onboarding
-/onboarding "como funciona o módulo de autenticação?"
-/onboarding "onde fica a lógica de pagamento?"
+$onboarding
+$onboarding "como funciona o modulo de autenticacao?"
+$onboarding "onde fica a logica de pagamento?"
 ```
 
-## Instruções para o Claude
+## Instrucoes para o Codex
 
-Quando o `/onboarding` for invocado, executar o seguinte fluxo:
+Quando `$onboarding` for invocado, siga este fluxo:
 
 ### 1. Coletar contexto do projeto
 
 Executar em paralelo:
-- Ler `CLAUDE.md` na raiz do projeto (se existir)
-- Listar estrutura de pastas: `src/`, `app/`, `modules/`, `services/`, `components/`
-- Ler `package.json` ou `pyproject.toml` para entender dependências principais
+- Ler `AGENTS.md` na raiz do projeto, se existir
+- Ler `.context/project-context.md`, se existir
+- Listar estrutura de pastas relevante: `src/`, `app/`, `modules/`, `services/`, `components/`
+- Ler `package.json` ou `pyproject.toml` para entender dependencias principais
 - Ler `docs/` se existir
-- Ler `.context/docs/` se existir (gerado pelo MCP ai-coders-context)
 - Ler `README.md` do projeto
 
-Se o projeto **não tiver CLAUDE.md nem .context/**, sugerir:
+Se o projeto nao tiver `AGENTS.md` nem `.context/project-context.md`, sugerir:
 ```
-Este projeto ainda não tem contexto gerado. Recomendo executar /context
-para eu conseguir te apresentar o projeto de forma mais completa.
+Este projeto ainda nao tem contexto leve gerado. Recomendo executar
+`$project-context` para eu conseguir te apresentar o projeto com mais
+confianca e navegar melhor pela arquitetura.
 
-Posso continuar com o que consigo ler do código, mas o contexto gerado
-pelo /context vai me dar muito mais informações sobre a arquitetura.
+Posso continuar com o que consigo ler do codigo e do README, mas o
+contexto gerado vai me dar uma visao melhor das entradas, convencoes e
+arquivos-chave.
 ```
-
----
 
 ### 2. Identificar tipo e contexto do projeto
 
@@ -60,11 +51,9 @@ Com base nos arquivos lidos, identificar:
 - **Filas**: SQS, RabbitMQ, Kafka, etc. (se EDA)
 - **Monorepo ou single repo**
 
----
-
 ### 3. Apresentar o projeto
 
-Se o usuário não fez uma pergunta específica (apenas `/onboarding`), apresentar:
+Se o usuario nao fez uma pergunta especifica (apenas `$onboarding`), apresentar:
 
 ```
 ## Bem-vindo ao {nome do projeto}!
@@ -98,26 +87,25 @@ src/
 - UI: sempre `@juscash/design-system`, nunca `antd` direto
 - Branches: `feature/ENG-123-descricao` ou `fix/ENG-123-descricao`
 
-### Próximos passos sugeridos
+### Proximos passos sugeridos
 1. Configure o `.env` a partir do `.env.example`
 2. Rode `npm install` e `npm run start:dev`
-3. Explore o módulo `{módulo mais relevante para começar}`
-4. Para iniciar sua primeira task: `/start-feature ENG-{seu-id}`
+3. Explore o modulo `{modulo mais relevante para comecar}`
+4. Para iniciar sua primeira task: `$jc-start-feature ENG-{seu-id}`
 
 Tem alguma dúvida específica? Pode me perguntar sobre qualquer parte do projeto.
 ```
 
----
-
 ### 4. Responder perguntas específicas
 
-Se o usuário fez uma pergunta (`/onboarding "como funciona X?"`):
+Se o usuario fez uma pergunta (`$onboarding "como funciona X?"`):
 
-1. Buscar nos arquivos de contexto e no código as informações relevantes:
-   - `.context/docs/` — documentação gerada
-   - `docs/` — docs locais
-   - `src/modules/{modulo-relacionado}/` — código-fonte
-   - Testes como documentação viva: `*.spec.ts`, `*.test.ts`
+1. Buscar nos arquivos de contexto e no codigo as informacoes relevantes:
+   - `AGENTS.md`
+   - `.context/project-context.md`
+   - `docs/`
+   - `src/modules/{modulo-relacionado}/`
+   - Testes como documentacao viva: `*.spec.ts`, `*.test.ts`
 
 2. Responder de forma didática:
    - Explicar o fluxo em linguagem natural
@@ -172,7 +160,7 @@ Padrão: arrange / act / assert nos describe/it blocks.
 
 ---
 
-### 5. Sugerir próximas perguntas
+### 5. Sugerir proximas perguntas
 
 Ao final de qualquer resposta, sugerir perguntas relacionadas:
 

@@ -1,4 +1,0 @@
-interface:
-  display_name: "JC Onboarding"
-  short_description: "Fluxo JusCash de Onboarding no Codex"
-  default_prompt: "Use $jc-onboarding para executar o fluxo JusCash equivalente no Codex."
