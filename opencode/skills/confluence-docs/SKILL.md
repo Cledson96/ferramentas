@@ -1,6 +1,7 @@
 ---
 name: confluence-docs
-description: Use para fluxos editoriais de documentacao no Confluence. Acione quando o usuario pedir para escolher templates, importar documentacao do Confluence para o repositorio, atualizar docs tecnicas locais, organizar arquivos `.xhtml` em `docs/` ou sincronizar documentacao tecnica entre repositorio e Confluence.
+description: Use para fluxos editoriais de documentacao tecnica no Confluence. Acione quando o usuario pedir para escolher templates, importar docs para o repositorio, atualizar arquivos `.xhtml` locais, organizar `docs/` ou sincronizar documentacao tecnica entre repositorio e Confluence.
+compatibility: opencode
 ---
 
 # Skill: Confluence Docs
@@ -16,6 +17,11 @@ Esta skill nao substitui a `confluence-rest`. Ela usa a `confluence-rest` como b
 - quando o usuario quiser atualizar docs locais em `.xhtml`
 - quando o usuario quiser publicar ou sincronizar docs locais de volta ao Confluence
 - quando a tarefa envolver naming, estrutura e organizacao de arquivos em `docs/`
+
+## Quando nao usar
+
+- quando o pedido for apenas buscar, ler, criar, atualizar, comentar, executar CQL ou descobrir `pageId` sem fluxo editorial; nesses casos usar `confluence-rest`
+- quando a tarefa for uma operacao REST pontual sem necessidade de template, organizacao documental ou sincronizacao
 
 ## Dependencia operacional
 
