@@ -46,7 +46,7 @@ Skills versionadas nesta v1:
 - `jc-onboarding`
 - `pull-request`
 - `jc-qa-agent`
-- `jc-review`
+- `review`
 - `jc-start-feature`
 - `jira-rest`
 - `playwright`
