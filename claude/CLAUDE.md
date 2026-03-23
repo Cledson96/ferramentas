@@ -18,7 +18,7 @@ Faz parte do plugin `jc` — instale com `claude --plugin-dir /caminho/para/clau
 - O output deve parecer inteiramente do desenvolvedor
 
 ## Git — Commits
-**SEMPRE usar `/jc:commit` para gerar e executar commits. Nunca rodar `git commit -m` diretamente.**
+**SEMPRE usar `@commit` para gerar e executar commits. Nunca rodar `git commit -m` diretamente.**
 
 Padrão: **Conventional Commits** com Jira ID
 
@@ -31,8 +31,11 @@ type(scope): descrição curta (TASK-ID)
 - **TASK-ID**: extraído da branch atual (ex: `feature/ENG-123-desc` → `ENG-123`). Omitir se não encontrar.
 - **Descrição**: imperativo em português ("adiciona", "corrige", "remove"), máx 72 chars
 
+## Git — Branch base
+Prioridade de detecção: `origin/development` → `origin/develop` → `origin/main` → `origin/master`
+
 ## Git — Pull Requests
-Usar template padronizado com contexto do Jira. Executar `/pr` para gerar automaticamente.
+Usar template padronizado com contexto do Jira. Executar `@pull-request` para gerar automaticamente.
 
 ## Design System
 - Componentes UI: importar de `@juscash/design-system` (NUNCA do `antd` direto)
@@ -58,19 +61,20 @@ Usar template padronizado com contexto do Jira. Executar `/pr` para gerar automa
 - Usar para: React, Next.js, NestJS, Prisma, e qualquer biblioteca referenciada no card Jira ou package.json
 - Não bloquear se Context7 não estiver disponível — usar conhecimento próprio como fallback
 
+## Agents disponíveis (plugin `jc`)
+- `@start-feature` — inicia feature: Jira → branch → contexto → Context7 docs → plano
+- `@feature-done` — workflow completo pós-feature: review → docs → commit → PR
+- `@commit` — gera mensagem de commit padronizada com Jira ID
+- `@pull-request` — cria PR com template e contexto do Jira
+- `@review` — code review da branch: Design System, padrões, testes, segurança
+- `@qa-agent` — review profundo: cobertura de testes, critérios de aceite do Jira
+- `@devops-agent` — checklist de deploy: env vars, migrations, breaking changes, rollback
+- `@figma-implement-design` — implementa UI a partir de Figma com design system
+
 ## Skills disponíveis (plugin `jc`)
-- `/jc:start-feature` — inicia feature: Jira → branch → contexto → Context7 docs → plano
-- `/jc:feature-done` — workflow completo pós-feature: review → docs → commit → PR
-- `/jc:commit` — gera mensagem de commit padronizada com Jira ID
-- `/jc:pr` — cria PR com template e contexto do Jira
-- `/jc:review` — code review completo da branch antes de abrir PR
 - `/jc:docs` — gera docs locais em `docs/` e sincroniza com Confluence (invocada automaticamente quando detectar necessidade de documentar)
 - Confluence REST — acesso direto ao Confluence via REST API (invocada automaticamente quando precisar ler/escrever no Confluence)
 - Jira REST — acesso direto ao Jira via REST API (invocada automaticamente quando Jira for mencionado)
 - `/jc:context` — gera contexto do projeto (CLAUDE.md + .context/)
 - `/jc:onboarding` — apresenta o projeto e responde dúvidas de arquitetura
 - Design System — ativo automaticamente ao criar componentes UI
-
-## Agents disponíveis (plugin `jc`)
-- `@qa-agent` — review profundo, cobertura de testes e critérios do Jira
-- `@devops-agent` — checklist de deploy: env vars, migrations, breaking changes, rollback

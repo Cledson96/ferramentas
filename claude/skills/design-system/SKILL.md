@@ -8,12 +8,16 @@ user-invocable: false
 
 Garante que toda implementação de UI use os componentes da biblioteca `@juscash/design-system`, especialmente ao trabalhar com Figma.
 
-## Quando ativar
+## Quando usar
 
-Esta skill deve ser seguida SEMPRE que o Claude for:
-- Implementar uma tela, página ou componente de UI
-- Receber um link do Figma para implementar
-- Criar ou modificar componentes React
+- Criar ou ajustar telas, páginas e componentes React
+- Implementar UI a partir de Figma
+- Decidir qual componente ou ícone usar no `@juscash/design-system`
+
+## Quando NÃO usar
+
+- Setup ou troubleshooting do MCP do Figma — use skill `figma` ou `@figma-implement-design`
+- Tarefas sem interface ou fora do design system da JusCash
 
 Não precisa executar `/design-system` — essas regras devem estar ativas automaticamente.
 
@@ -163,6 +167,15 @@ export function UserListPage() {
 ```
 
 ---
+
+## Guardrails
+
+- Nunca importar `antd` diretamente quando houver re-export ou equivalente no design system
+- Nunca adicionar `@ant-design/icons` — usar `LucideIcons`
+- Não duplicar componente que já existe no design system
+- Reaproveitar componentes existentes antes de criar novos
+- Se o Figma trouxer algo que não exista no design system, criar extensão local coerente com os tokens do projeto
+- Manter fidelidade ao Figma sem quebrar tokens e convenções do projeto
 
 ## Referências
 

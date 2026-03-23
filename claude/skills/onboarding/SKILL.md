@@ -17,6 +17,19 @@ Agente especializado em integrar novos desenvolvedores ao projeto. Lê o context
 /onboarding "onde fica a lógica de pagamento?"
 ```
 
+## Quando usar
+
+- Quando alguém estiver conhecendo o repositório pela primeira vez
+- Quando o usuário pedir visão geral técnica, arquitetura, stack ou estrutura de pastas
+- Quando o usuário perguntar onde um fluxo, módulo ou parte do sistema funciona
+- Quando for preciso orientar próximos passos para começar a trabalhar
+
+## Quando NÃO usar
+
+- Para gerar ou atualizar contexto persistente — usar `/jc:context`
+- Para alterar código em vez de explicar arquitetura
+- Para perguntas pontuais que podem ser respondidas lendo um único arquivo
+
 ## Instruções para o Claude
 
 Quando o `/onboarding` for invocado, executar o seguinte fluxo:
@@ -176,3 +189,11 @@ Outras perguntas que posso responder:
 - "Como estão organizados os testes?"
 - "Quais variáveis de ambiente preciso configurar?"
 ```
+
+## Guardrails
+
+- Não inventar informações sobre a arquitetura — usar apenas o que encontrar no código e contexto
+- Se não encontrar informação suficiente, ser transparente e sugerir onde procurar
+- Não sobrescrever arquivos do projeto
+- Priorizar `CLAUDE.md` e `.context/project-context.md` como ponto de entrada quando existirem
+- Não gerar contexto persistente — para isso usar `/jc:context`
