@@ -23,7 +23,7 @@ Este inventario registra o estado atual das skills versionadas em [codex/skills]
 | `commit` | Commit padronizado da JusCash | padrao local recorrente | Git, naming da branch | Mais especifica de Codex/JusCash |
 | `design-system` | Regras do design system JusCash | importante para UI consistente | design system do projeto, eventualmente Figma | Mais especifica de Codex/JusCash |
 | `devops-agent` | Checklist de deploy e risco | apoio forte antes de staging ou producao | contexto do repo, infra do projeto | Mais especifica de Codex/JusCash |
-| `jc-feature-done` | Workflow completo de encerramento | encadeia review, docs, commit e PR | Git, GitHub, Jira, Confluence | Mais especifica de Codex/JusCash |
+| `feature-done` | Workflow completo de encerramento | encadeia review, docs, commit e PR | Git, GitHub, Jira, Confluence | Mais especifica de Codex/JusCash |
 | `onboarding` | Onboarding tecnico | acelera leitura de projeto | contexto local do repo | Pode ser adaptada depois |
 | `pull-request` | Abertura de PR padronizada | operacionaliza PR com contexto Jira e base dinamica | `github-terminal`, Jira | Pode ser adaptada depois |
 | `qa-agent` | QA profundo pre-PR | valida aceite, testes e riscos | diff do Git, contexto Jira | Mais especifica de Codex/JusCash |

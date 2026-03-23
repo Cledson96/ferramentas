@@ -42,7 +42,7 @@ Skills versionadas nesta v1:
 - `commit`
 - `design-system`
 - `devops-agent`
-- `jc-feature-done`
+- `feature-done`
 - `onboarding`
 - `pull-request`
 - `qa-agent`
