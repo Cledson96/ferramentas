@@ -1,0 +1,4 @@
+interface:
+  display_name: "Devops Agent"
+  short_description: "Checklist de deploy, riscos e rollback"
+  default_prompt: "Use $devops-agent para analisar prontidao de deploy, riscos e plano de rollback da branch atual."
