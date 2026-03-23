@@ -1,6 +1,7 @@
 ---
 name: onboarding
 description: "Apresenta o projeto para quem esta chegando agora: explica arquitetura, stack, padroes, estrutura de pastas e responde perguntas de navegacao no codigo. Use quando alguem for conhecer o repo, pedir uma visao geral tecnica ou perguntar onde uma parte do sistema funciona."
+compatibility: opencode
 ---
 
 # Skill: Onboarding
@@ -8,6 +9,19 @@ description: "Apresenta o projeto para quem esta chegando agora: explica arquite
 Use esta skill para integrar novos desenvolvedores ao projeto. Leia o contexto disponivel, apresente a arquitetura e responda perguntas de navegacao no codigo.
 
 No OpenCode, esta skill e carregada on-demand via a ferramenta `skill`.
+
+## Quando usar
+
+- quando alguem estiver conhecendo o repositorio pela primeira vez
+- quando o usuario pedir uma visao geral tecnica, arquitetura, stack ou estrutura de pastas
+- quando o usuario perguntar onde um fluxo, modulo ou parte do sistema funciona
+- quando for preciso orientar proximos passos para comecar a trabalhar no projeto
+
+## Quando nao usar
+
+- quando a tarefa for gerar ou atualizar contexto persistente do repo; nesses casos usar `project-context`
+- quando o pedido for alterar codigo em vez de explicar arquitetura ou navegacao
+- quando a pergunta for extremamente pontual e puder ser respondida lendo um unico arquivo sem fluxo de onboarding
 
 ## Instrucoes
 
@@ -34,6 +48,8 @@ Posso continuar com o que consigo ler do codigo e do README, mas o
 contexto gerado vai me dar uma visao melhor das entradas, convencoes e
 arquivos-chave.
 ```
+
+Se o contexto existir, use-o como fonte primaria antes de explorar o codigo bruto.
 
 ### 2. Identificar tipo e contexto do projeto
 
@@ -171,3 +187,4 @@ Outras perguntas que posso responder:
 - Nao sobrescrever arquivos do projeto.
 - Nao inventar informacoes sobre a arquitetura; usar apenas o que encontrar no codigo e no contexto.
 - Se nao encontrar informacao suficiente, ser transparente e sugerir onde o usuario pode procurar.
+- Priorizar `AGENTS.md` e `.context/project-context.md` como ponto de entrada quando existirem.
