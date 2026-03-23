@@ -1,6 +1,7 @@
 ---
 name: confluence-rest
-description: Use para trabalhar com Confluence via API direta da Atlassian, sem usar MCP. Acione quando o usuario mencionar Confluence ou pedir para buscar, ler, criar, atualizar, comentar, puxar, importar ou organizar paginas, executar CQL, abrir links de paginas, descobrir pageId, criar paginas filhas com parentId, consultar espacos ou operar conteudo em Storage Format XHTML.
+description: Use para operacoes REST diretas no Confluence, sem MCP. Acione quando o usuario pedir para buscar, ler, criar, atualizar, comentar, puxar, consultar espacos, executar CQL, descobrir `pageId`, operar `parentId` ou trabalhar com paginas em Storage Format XHTML.
+compatibility: opencode
 ---
 
 # Skill: Confluence REST
@@ -11,6 +12,17 @@ Esta e a skill padrao de Confluence do repositorio.
 
 - sempre use esta skill quando o pedido mencionar Confluence
 - nao usar MCP para fluxos de Confluence desta skill
+
+## Quando usar
+
+- quando o pedido envolver leitura, busca, criacao, atualizacao, comentario, arvore de paginas ou descoberta de `pageId` no Confluence
+- quando o usuario trouxer link de pagina, CQL, `spaceId`, `parentId` ou pedir operacao via API REST direta da Atlassian
+- quando o conteudo precisar ser lido ou mantido em Storage Format XHTML
+
+## Quando nao usar
+
+- quando o foco principal for fluxo editorial de documentacao tecnica, escolha de template, organizacao de `docs/` ou sincronizacao de docs tecnicas; nesses casos usar `confluence-docs`
+- quando a tarefa pedir MCP; para esta skill, MCP nao e permitido
 
 ## Script
 
@@ -53,6 +65,30 @@ Compatibilidade:
 - se o arquivo usar `apiToken` em vez de `token`, aceitar ambos na leitura
 - se faltar `baseUrl`, `email` ou `token`, interromper com erro claro e orientar o usuario a corrigir o arquivo global
 
+## Delegacao mecanica
+
+Quando os parametros ja estiverem fechados, tarefas mecanicas podem ser delegadas para um subagente mais barato.
+
+Delegar apenas:
+
+- buscas CQL amplas
+- leitura de arvore e metadados
+- pulls em lote com `pull-pages`
+- organizacao mecanica dos resultados retornados pela API
+- preparacao operacional de `create` ou `update` ja decididos
+
+Manter no agente principal:
+
+- decisao sobre quais paginas entram no fluxo
+- revisao do conteudo antes de publicar
+- escolha entre criar, atualizar, puxar ou sincronizar
+- qualquer decisao editorial ou estrutural sobre a documentacao
+
+Regras:
+
+- delegar apenas quando nao houver ambiguidade de espaco, pagina, estrutura ou conteudo
+- revisar o retorno antes de confirmar criacao, atualizacao ou pull final
+
 ## Defaults JusCash
 
 - usar `https://juscash.atlassian.net/wiki` como base efetiva do Confluence
@@ -74,7 +110,7 @@ Compatibilidade:
 11. Se o pedido for atualizar pagina, preservar o titulo esperado e deixar o script calcular a versao automaticamente.
 12. Em qualquer alteracao, resumir exatamente o que foi criado ou atualizado.
 
-Para fluxos editoriais de documentacao, templates e sincronizacao de docs tecnicas, use a skill `confluence-docs`.
+Para fluxos editoriais de documentacao, templates e sincronizacao de docs tecnicas, usar `confluence-docs` e manter esta skill como base operacional REST.
 
 ## Comandos principais
 

@@ -1,6 +1,7 @@
 ---
 name: project-context
 description: Use para gerar, reutilizar e atualizar contexto leve de qualquer repositorio usando Repomix como motor principal. Acione quando abrir um projeto pela primeira vez, quando quiser economizar tokens ao trabalhar no repo, quando precisar criar ou atualizar `.context/project-context.md`, quando quiser verificar se o contexto do projeto esta stale, ou quando precisar criar ou atualizar o `AGENTS.md` com ponteiros para o contexto do projeto.
+compatibility: opencode
 ---
 
 # Skill: Project Context
@@ -8,6 +9,19 @@ description: Use para gerar, reutilizar e atualizar contexto leve de qualquer re
 Use o script versionado desta skill para criar e manter o contexto leve do projeto.
 
 No OpenCode, esta skill e carregada on-demand via a ferramenta `skill`.
+
+## Quando usar
+
+- quando abrir um repositorio pela primeira vez e quiser um resumo leve antes de explorar o codigo
+- quando precisar economizar tokens reaproveitando um contexto consolidado do projeto
+- quando quiser verificar se `.context/project-context.md` esta stale ou precisa ser regenerado
+- quando precisar criar ou atualizar o bloco gerenciado em `AGENTS.md` com ponteiros para o contexto do projeto
+
+## Quando nao usar
+
+- quando a tarefa for apenas ler 1 ou 2 arquivos especificos sem necessidade de contexto persistente
+- quando o usuario quiser exploracao pontual do repo sem gerar artefatos locais
+- quando a tarefa nao envolver repositorio local ou nao se beneficiar de contexto persistente
 
 ## Script
 
@@ -69,6 +83,13 @@ O script retorna JSON. Interpretar assim:
 4. Em tarefas normais, ler primeiro `.context/project-context.md`.
 5. So recorrer aos artefatos em `.context/repomix/` quando precisar de mais detalhe.
 
+## Regras de uso no OpenCode
+
+- preferir `ensure` como ponto de entrada padrao
+- usar `status` para diagnostico rapido antes de regenerar contexto
+- usar `refresh` apenas quando o contexto estiver stale ou quando o usuario pedir explicitamente
+- tratar `.context/project-context.md` como fonte primaria e os artefatos Repomix como referencia expandida
+
 ## O que o resumo deve consolidar
 
 O `.context/project-context.md` deve consolidar:
@@ -103,3 +124,4 @@ Preferir um resumo curto, navegavel e estavel. Nao despejar o conteudo bruto do 
 - Nao sobrescrever instrucoes manuais do `AGENTS.md` fora do bloco gerenciado.
 - Nao usar os artefatos Repomix como contexto primario quando `.context/project-context.md` estiver atualizado.
 - Se `npx repomix` falhar, informar claramente que o projeto ficou sem contexto atualizado e expor o erro retornado pelo CLI.
+- Nao editar manualmente o bloco gerenciado em `AGENTS.md`; deixar o script reconciliar esse trecho.

@@ -1,6 +1,7 @@
 ---
 name: devops-agent
 description: "Agente de DevOps especializado em preparo para deploy. Analisa env vars, migrations, breaking changes, dependencias de infraestrutura e plano de rollback para dizer se a branch esta pronta para subir."
+compatibility: opencode
 ---
 
 # Skill: DevOps Agent
@@ -8,6 +9,18 @@ description: "Agente de DevOps especializado em preparo para deploy. Analisa env
 Agente especializado em analise pre-deploy. Faz leitura do diff e do contexto do projeto para montar checklist de deploy, classificar risco e apontar blockers antes de staging ou producao.
 
 No OpenCode, esta skill e carregada on-demand via a ferramenta `skill`.
+
+## Quando usar
+
+- quando o usuario pedir analise de prontidao para deploy, staging ou producao
+- quando for preciso revisar env vars, migrations, rollback e breaking changes da branch atual
+- quando for necessario montar checklist pre-deploy e avaliar risco operacional
+
+## Quando nao usar
+
+- quando o pedido for executar deploy, rodar migration ou alterar infraestrutura; esta skill apenas analisa e recomenda
+- quando a tarefa for investigacao de codigo sem relacao com deploy ou operacao
+- quando o usuario quiser apenas dados do Jira; nesses casos usar `jira-rest`
 
 ## Instrucoes
 
@@ -159,6 +172,22 @@ Se o usuario quiser seguir com alguma acao operacional depois do relatorio, prim
 - **Medio** — migration reversivel, nova env var ou dependencia com impacto controlado
 - **Alto** — migration destrutiva, breaking change relevante, requisito de infraestrutura novo ou env var obrigatoria sem fallback
 
+## Politica de delegacao
+
+Manter no agente principal:
+
+- classificacao final de risco
+- leitura dos impactos de deploy
+- recomendacao final de prontidao
+- checklist consolidado
+
+Delegar apenas tarefas mecanicas e de baixo risco, como:
+
+- listar migrations adicionadas
+- enumerar env vars novas
+- mapear arquivos de infraestrutura tocados no diff
+- levantar sinais objetivos de breaking change no diff
+
 ## Guardrails
 
 - Nao depender de MCP externo.
@@ -166,3 +195,4 @@ Se o usuario quiser seguir com alguma acao operacional depois do relatorio, prim
 - Nao inventar informacoes sobre o estado da infraestrutura.
 - Nao assumir ambiente de destino sem que o usuario especifique.
 - Se nao encontrar evidencia suficiente no diff, ser transparente e classificar como "Nao verificavel".
+- Nao delegar a analise final de risco nem o checklist consolidado.

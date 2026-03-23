@@ -1,11 +1,24 @@
 ---
 name: design-system
 description: "Regras de uso do @juscash/design-system para UI: componentes, icones LucideIcons e implementacao a partir de Figma. Use ao criar ou alterar telas, componentes React ou qualquer fluxo de interface."
+compatibility: opencode
 ---
 
 # Skill: Design System
 
 Garante que toda implementacao de UI use os componentes da biblioteca `@juscash/design-system`, especialmente ao trabalhar com Figma.
+
+## Quando usar
+
+- quando o pedido envolver criar ou alterar telas, paginas ou componentes React
+- quando houver implementacao visual baseada em Figma dentro do ecossistema JusCash
+- quando for necessario escolher componentes, icones ou primitives corretos do `@juscash/design-system`
+
+## Quando nao usar
+
+- quando a tarefa for apenas setup ou troubleshooting do MCP do Figma; nesses casos usar `figma`
+- quando a tarefa for implementar UI fora do contexto do design-system da JusCash
+- quando o pedido nao envolver interface, componentes ou decisao visual
 
 ## Quando ativar
 
@@ -61,15 +74,25 @@ Importar sempre do design-system:
 
 1. Extrair o design com `get_design_context` usando `fileKey` e `nodeId`.
 2. Analisar screenshot e mapear cada elemento para o componente correspondente.
-3. Se o Figma usar um componente que nao existe no design-system, implementar como styled component seguindo os tokens visuais.
-4. Gerar codigo com imports de `@juscash/design-system`.
-5. Validar visualmente com `get_screenshot` do MCP Figma.
+3. Se houver problema de setup, autenticacao ou conectividade MCP, usar primeiro a skill `figma` e retomar depois.
+4. Se o Figma usar um componente que nao existe no design-system, implementar como extensao local seguindo os tokens visuais e as convencoes do projeto.
+5. Se existir componente equivalente no design-system, reaproveitar ou estender em vez de duplicar.
+6. Gerar codigo com imports de `@juscash/design-system`.
+7. Validar visualmente com `get_screenshot` do MCP Figma.
 
 ### Quando criar UI sem Figma
 
 1. Perguntar se ha design no Figma para a tela.
 2. Se nao houver, usar os componentes do design-system seguindo padroes do Storybook.
 3. Referencia visual: https://juscash.github.io/design-system/
+
+## Guardrails
+
+- nunca importar componentes diretamente de `antd` quando houver reexport ou componente equivalente no design-system
+- nunca usar `@ant-design/icons`; usar `LucideIcons`
+- nao duplicar componente ja existente no design-system sem necessidade real
+- nao usar a skill `figma` para implementar UI; ela e apenas base tecnica de MCP
+- manter fidelidade visual ao Figma sem quebrar os tokens e padroes do design-system
 
 ### Exemplo de implementacao
 

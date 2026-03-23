@@ -1,6 +1,7 @@
 ---
 name: playwright
 description: Use quando a tarefa exige automatizar um navegador real via Playwright MCP — navegacao, preenchimento de formularios, screenshots, extracao de dados, debug de fluxos UI. Acione tambem para testes visuais, scraping, captura de PDFs e qualquer interacao programatica com paginas web.
+compatibility: opencode
 ---
 
 # Skill: Playwright (MCP)
@@ -8,6 +9,18 @@ description: Use quando a tarefa exige automatizar um navegador real via Playwri
 Automatize navegadores reais a partir do terminal usando o Playwright MCP server integrado ao OpenCode.
 
 Esta skill usa a abordagem MCP (Model Context Protocol) em vez de scripts wrapper. O OpenCode gerencia a conexao com o servidor MCP automaticamente.
+
+## Quando usar
+
+- quando a tarefa exigir navegacao automatizada, preenchimento de formularios ou cliques em paginas reais
+- quando for preciso tirar screenshots, gerar PDFs ou extrair dados de uma interface web
+- quando o usuario pedir debug de fluxo UI, scraping leve ou verificacao visual em navegador real
+
+## Quando nao usar
+
+- quando o pedido for apenas escrever testes `@playwright/test`; nesse caso tratar como implementacao de testes, nao como automacao MCP
+- quando bastar ler HTML estatico sem interacao real de navegador
+- quando a tarefa nao envolver navegador, pagina web ou fluxo visual
 
 ## Instalacao
 
@@ -185,8 +198,9 @@ Refs podem ficar stale. Se um comando falhar por ref inexistente, dar snapshot n
 
 - Sempre dar snapshot antes de referenciar ids de elementos como `e12`.
 - Re-snapshot quando refs parecerem stale.
-- Prefirir ferramentas MCP explicitas em vez de `eval` quando possivel.
+- Preferir ferramentas MCP explicitas em vez de `browser_evaluate` quando possivel.
 - Usar `--headed` (remover `--headless`) quando uma verificacao visual ajudar.
 - Ao capturar artefatos neste repo, usar `output/playwright/` e evitar criar pastas de artefatos no nivel raiz.
 - Nao assumir que refs persistem entre snapshots diferentes.
 - Em caso de erro de conexao MCP, verificar se o servidor esta rodando e se o `opencode.json` esta configurado corretamente.
+- Default para automacao MCP interativa; nao migrar para test specs sem pedido explicito do usuario.

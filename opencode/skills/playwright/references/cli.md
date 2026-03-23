@@ -101,23 +101,28 @@ Use a opcao `--output-dir` na configuracao MCP para isolar artefatos por projeto
 
 ## Configuracao avancada
 
-### Arquivo de configuracao
+### Configuracao no OpenCode
 
-O CLI le `playwright-cli.json` do diretorio atual. Use para configurar viewport, browser e outras opcoes:
+No OpenCode, prefira configurar o servidor MCP no `opencode.json` em vez de depender de um arquivo CLI separado:
 
-```json
+```jsonc
 {
-  "browser": {
-    "launchOptions": {
-      "headless": true
-    },
-    "contextOptions": {
-      "viewport": { "width": 1280, "height": 720 },
-      "locale": "pt-BR"
+  "mcp": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp",
+        "--browser", "chromium",
+        "--viewport-size", "1280,720",
+        "--timeout", "30000",
+        "--output-dir", "./output/playwright"
+      ]
     }
   }
 }
 ```
+
+Se precisar de locale, timezone ou outras opcoes de contexto, ajuste a configuracao do MCP adotada pelo projeto e mantenha as instrucoes junto ao `opencode.json`.
 
 ### Seguranca
 

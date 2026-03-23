@@ -1,6 +1,7 @@
 ---
 name: qa-agent
 description: "Agente de QA especializado em qualidade de codigo. Faz review profundo com cobertura de testes, validacao de criterios de aceite e analise de riscos de qualidade. Use antes de abrir PR, para validar uma feature, revisar cobertura de testes ou encontrar blockers tecnicos."
+compatibility: opencode
 ---
 
 # Skill: QA Agent
@@ -8,6 +9,18 @@ description: "Agente de QA especializado em qualidade de codigo. Faz review prof
 Agente especializado em qualidade de codigo. Vai alem do review: analisa cobertura de testes, valida criterios de aceite do Jira contra o codigo implementado e sugere melhorias com exemplos concretos.
 
 No OpenCode, esta skill e carregada on-demand via a ferramenta `skill`.
+
+## Quando usar
+
+- quando o usuario pedir uma validacao profunda de QA antes de PR ou merge
+- quando for preciso revisar cobertura de testes, criterios de aceite e riscos de qualidade da branch
+- quando fizer sentido gerar recomendacoes concretas de testes faltantes ou correcoes de blockers
+
+## Quando nao usar
+
+- quando o pedido for apenas um code review mais leve; nesse caso usar `review`
+- quando a tarefa for implementar feature sem etapa de validacao de QA
+- quando nao houver diff relevante para validar
 
 ## Instrucoes
 
@@ -171,6 +184,22 @@ Quer que eu:
 
 Se o usuario confirmar, aplicar as correcoes/gerar testes e informar os arquivos alterados.
 
+## Politica de delegacao
+
+Mantenha no agente principal:
+
+- validacao dos criterios de aceite
+- classificacao de cobertura de testes
+- severidade dos achados
+- recomendacao final de QA
+
+Delegar apenas tarefas mecanicas, como:
+
+- localizar arquivos de teste correspondentes
+- listar funcoes novas sem testes obvios
+- mapear sinais repetitivos de imports proibidos, logs ou secrets
+- levantar arquivos alterados sem cobertura aparente
+
 ## Guardrails
 
 - Nao depender de MCP externo.
@@ -178,3 +207,4 @@ Se o usuario confirmar, aplicar as correcoes/gerar testes e informar os arquivos
 - Nao inventar informacoes sobre criterios de aceite; usar apenas o que encontrar no Jira.
 - Nao gerar testes sem analisar primeiro a cobertura existente.
 - Nao pular a analise de seguranca mesmo quando a feature e pequena.
+- Nao delegar a conclusao final de QA nem a classificacao dos blockers.

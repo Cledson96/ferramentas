@@ -1,11 +1,24 @@
 ---
 name: review
 description: "Faz code review completo da branch com foco em padroes, design system, testes e requisitos do Jira. Use quando o usuario pedir revisao tecnica antes de merge."
+compatibility: opencode
 ---
 
 # Skill: Review
 
 Faz code review completo da branch com foco em qualidade e risco: verifica padroes, imports do design system, testes e validacao contra requisitos do card Jira.
+
+## Quando usar
+
+- quando o usuario pedir code review tecnico antes de merge, PR ou deploy
+- quando for preciso revisar diff da branch com foco em qualidade, risco e aderencia a padroes
+- quando fizer sentido validar implementacao contra requisitos do Jira
+
+## Quando nao usar
+
+- quando o pedido for apenas resumir mudancas sem emitir achados ou recomendacao
+- quando a tarefa for corrigir codigo diretamente sem etapa de review
+- quando nao houver diff relevante para revisar
 
 ## Instruções
 
@@ -19,11 +32,8 @@ Quando houver intenção de review, siga estes passos:
    - `origin/develop` → usar `develop`
    - `origin/main` → usar `main`
    - `origin/master` → usar `master`
-3. Confirme com o usuário antes de prosseguir:
-   ```
-   Branch base detectada: `development`. Está correto? (ou informe outra)
-   ```
-4. Após confirmação, execute em paralelo:
+3. Se houver uma base claramente detectada, siga com ela sem interromper o fluxo. So perguntar ao usuario se houver ambiguidade real ou se ele tiver informado outra base.
+4. Execute em paralelo:
    - `git branch --show-current` — branch atual
    - `git diff {BASE}...HEAD --stat` — arquivos alterados
    - `git diff {BASE}...HEAD` — diff completo
@@ -123,3 +133,27 @@ import { Button } from '@juscash/design-system'
 ```
 
 Pergunte ao usuário: "Quer que eu aplique essas correções automaticamente?"
+
+## Politica de delegacao
+
+Mantenha no agente principal:
+
+- sintese final dos findings
+- classificacao de severidade
+- validacao contra requisitos do Jira
+- recomendacao final de merge
+
+Delegar apenas tarefas mecanicas e de baixo risco, como:
+
+- inventario de arquivos alterados
+- mapeamento de testes existentes por caminho
+- enumeracao inicial de imports, `console.log` e sinais obvios de risco
+- levantamento objetivo de arquivos sem cobertura aparente
+
+## Guardrails
+
+- nao aprovar algo sem olhar o diff real da branch
+- nao inventar requisito de Jira quando o card nao estiver disponivel
+- nao transformar atencao em bloqueador sem evidencia concreta no diff
+- nao delegar a redacao final dos findings nem a recomendacao de merge
+- se o diff estiver vazio, encerrar cedo e informar que nao ha mudancas para revisar

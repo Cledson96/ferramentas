@@ -1,11 +1,23 @@
 ---
 name: commit
-description: Gera mensagens de commit no padrao Conventional Commits com deteccao de scope e Jira ID da branch. Use quando o usuario quiser gerar, revisar ou executar um commit.
+description: Use para gerar, revisar e executar commits no padrao Conventional Commits, com deteccao de scope e Jira ID da branch quando houver. Acione quando o usuario pedir para montar mensagem de commit, revisar staged changes ou efetivar um commit.
+compatibility: opencode
 ---
 
 # Skill: Commit
 
 Gera mensagens de commit no padrão Conventional Commits, com ID do Jira quando disponível.
+
+## Quando usar
+
+- quando o usuario pedir para gerar, revisar ou executar um commit
+- quando for preciso analisar arquivos staged para propor uma mensagem coerente
+- quando o nome da branch puder indicar um Jira ID como `ENG-123`
+
+## Quando nao usar
+
+- quando o usuario quiser apenas inspecionar o diff sem intencao de commit
+- quando a tarefa for criar tag, release ou pull request em vez de commit
 
 ## Template
 
@@ -34,6 +46,7 @@ Quando houver intenção de commit, siga estes passos:
 Execute em paralelo:
 - `git diff --cached --stat` — lista de arquivos no stage
 - `git diff --cached` — diff completo do que será commitado
+- `git branch --show-current` — nome da branch para detectar Jira ID
 
 Se não houver nada staged (`git diff --cached` retornar vazio):
 - Execute `git status` para mostrar o estado atual
@@ -42,7 +55,7 @@ Se não houver nada staged (`git diff --cached` retornar vazio):
 
 ### Passo 2 — Identificar o TASK-ID do Jira
 
-Execute `git branch --show-current` e extraia o código da task usando regex:
+Extraia o código da task do nome da branch usando regex:
 - Padrão: sequência de letras maiúsculas + hífen + números em qualquer ponto do nome da branch (ex: `ENG-123`, `TASK-456`, `JUS-789`)
 - Exemplos de branches: `feature/ENG-123-descricao`, `fix/JUS-456`, `ENG-789-nova-feature`, `release/JUS-101-ajuste`
 - Se existirem mais de uma correspondência, prefira a que estiver mais próxima do começo da branch e parecer mais ligada ao card principal
@@ -111,3 +124,11 @@ git commit -m "type(scope): descrição (TASK-ID)"
 **Importante:** nunca adicionar `Co-Authored-By`, assinatura do assistente ou qualquer metadado além da mensagem do commit. O commit deve conter apenas a mensagem gerada.
 
 Mostre o resultado do commit (hash e arquivos incluídos).
+
+## Guardrails
+
+- manter este fluxo local e enxuto
+- nao delegar a sintese da mensagem de commit para subagente barato
+- nao adicionar assinatura do assistente, `Co-Authored-By` ou metadados extras
+- usar a mensagem do usuario como insumo quando ela existir, sem abrir mao da validacao pelo diff
+- se o diff staged estiver vazio, nao criar commit vazio

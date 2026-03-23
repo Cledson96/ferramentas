@@ -1,11 +1,28 @@
 ---
 name: jira-rest
-description: Use para trabalhar com Jira via API REST direta da Atlassian, sem usar MCP. Acione quando o usuario pedir para buscar, ler, criar, editar, comentar, transicionar, registrar worklog, listar projetos, descobrir tipos de issue, ver campos obrigatorios, executar JQL ou relacionar tickets do Jira. Tambem use quando o pedido mencionar Jira, Atlassian, ticket, card, bug, story, task, issue keys como ABC-123, JQL, transicao, comentario, worklog, criacao ou edicao de issue.
+description: Use para operacoes REST diretas no Jira, sem MCP. Acione quando o usuario pedir para buscar, ler, criar, editar, comentar, transicionar, registrar worklog, executar JQL, consultar metadados, relacionar tickets ou operar issues como `ABC-123` via API da Atlassian.
+compatibility: opencode
 ---
 
 # Skill: Jira REST
 
 Use o script global `jira.js` desta skill para toda integracao com Jira via REST direta.
+
+Esta e a skill padrao de Jira do repositorio.
+
+- sempre use esta skill quando o pedido mencionar Jira
+- nao usar MCP para fluxos de Jira desta skill
+
+## Quando usar
+
+- quando o pedido envolver busca, leitura, criacao, edicao, comentario, transicao, worklog ou relacionamento de issues no Jira
+- quando o usuario mencionar Jira, Atlassian, ticket, card, bug, story, task, JQL ou issue keys como `ABC-123`
+- quando for preciso consultar `projects`, `issue-types`, `fields` ou `transitions` antes de operar um card
+
+## Quando nao usar
+
+- quando a tarefa depender de MCP; para esta skill, MCP nao e permitido
+- quando a acao nao for sobre Jira ou nao exigir API REST direta da Atlassian
 
 ## Script
 
@@ -46,6 +63,30 @@ Compatibilidade:
 
 - se o arquivo usar `apiToken` em vez de `token`, aceitar ambos na leitura
 - se faltar `baseUrl`, `email` ou `token`, interromper com erro claro e orientar o usuario a corrigir o arquivo global
+
+## Delegacao mecanica
+
+Quando os parametros da operacao ja estiverem fechados, tarefas mecanicas podem ser delegadas para um subagente mais barato.
+
+Delegar apenas:
+
+- buscas amplas
+- leituras em lote
+- export de comentarios
+- consultas de metadados como `projects`, `issue-types`, `fields` e `transitions`
+- preparacao mecanica de payloads ja decididos
+
+Manter no agente principal:
+
+- escolha do modo de comentario
+- interpretacao de criterio de aceite
+- decisao de transicao, edicao, criacao ou resposta
+- confirmacao final de alteracoes
+
+Regras:
+
+- delegar apenas quando nao houver ambiguidade de card, projeto, campo, comentario alvo ou proxima transicao
+- revisar o retorno antes de confirmar comentario, edicao, criacao, worklog ou transicao
 
 ## Fluxo padrao
 
@@ -110,6 +151,12 @@ Compatibilidade:
 - `targetCommentId`: obrigatorio apenas em `resposta`
 
 ## Comandos principais
+
+### Setup
+
+```bash
+node ~/.config/opencode/skills/jira-rest/scripts/jira.js setup --base-url "https://juscash.atlassian.net" --email "usuario@empresa.com" --token "TOKEN"
+```
 
 ### Leitura e busca
 
