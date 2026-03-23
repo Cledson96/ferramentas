@@ -40,7 +40,7 @@ Skills versionadas nesta v1:
 - `figma-implement-design`
 - `github-terminal`
 - `commit`
-- `jc-design-system`
+- `design-system`
 - `jc-devops-agent`
 - `jc-feature-done`
 - `jc-onboarding`

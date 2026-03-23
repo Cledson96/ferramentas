@@ -1,4 +1,0 @@
-interface:
-  display_name: "JC Design System"
-  short_description: "Fluxo JusCash de Design System no Codex"
-  default_prompt: "Use $jc-design-system para executar o fluxo JusCash equivalente no Codex."
