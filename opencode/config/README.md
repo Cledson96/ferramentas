@@ -37,6 +37,14 @@ Mais info: https://github.com/NoeFabris/opencode-antigravity-auth
 
 Use o instalador do pacote para copiar estes arquivos para `~/.config/opencode/` e mesclar `opencode.jsonc` com seguranca.
 
+Comandos principais:
+
+```bash
+node ./opencode/scripts/install-global.js status
+node ./opencode/scripts/install-global.js install --dry-run
+node ./opencode/scripts/install-global.js install
+```
+
 ```jsonc
 {
     "plugin": [

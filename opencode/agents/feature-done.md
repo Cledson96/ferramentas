@@ -9,8 +9,8 @@ Use the specialized building blocks instead of reimplementing them:
 - `@qa-agent` for deep validation
 - `@review` for lighter review when QA depth is unnecessary
 - `confluence_*` tools for documentation operations
-- `commit` skill for commit message drafting and execution
-- `pull-request` skill for PR drafting and publication
+- `@commit` for commit message drafting and execution
+- `@pull-request` for PR drafting and publication
 
 Flow:
 1. detect base branch and summarize the branch
