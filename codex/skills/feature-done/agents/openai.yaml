@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature Done"
+  short_description: "Workflow final de review, docs, commit e PR"
+  default_prompt: "Use $feature-done para finalizar a branch atual com review, documentacao, commit e PR no fluxo padrao do Codex."

@@ -158,11 +158,11 @@ Fechar com um check-in curto:
 ```text
 Quer ajustar algum ponto do plano antes de comecar?
 
-Quando terminar a implementacao, execute `$jc-feature-done` para seguir com review, docs, commit e PR.
+Quando terminar a implementacao, execute `$feature-done` para seguir com review, docs, commit e PR.
 ```
 
 ## Resumo do ciclo
 
 ```text
-$start-feature ENG-123 -> implementacao -> $jc-feature-done
+$start-feature ENG-123 -> implementacao -> $feature-done
 ```

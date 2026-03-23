@@ -9,7 +9,7 @@ Agente especializado em qualidade de codigo. Vai alem do `$review`: analisa cobe
 
 ## Uso
 
-Invocado automaticamente pelo `$jc-feature-done` na fase de QA, ou diretamente:
+Invocado automaticamente pelo `$feature-done` na fase de QA, ou diretamente:
 
 ```
 $qa-agent
