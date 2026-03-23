@@ -1,6 +1,6 @@
 ---
 name: jc-feature-done
-description: "Workflow completo pos-feature — review via @qa-agent, docs, commit e PR em sequencia. Use quando o usuario mencionar /jc:feature-done, pedir esse workflow da JusCash ou quiser o comportamento equivalente do plugin jc no Codex."
+description: "Workflow completo pos-feature — review via qa-agent, docs, commit e PR em sequencia. Use quando o usuario mencionar /jc:feature-done, pedir esse workflow da JusCash ou quiser o comportamento equivalente do plugin jc no Codex."
 ---
 
 ## Uso No Codex
@@ -14,7 +14,7 @@ Invocacao equivalente no Codex: `$jc-feature-done`
 
 # Skill: Feature Done
 
-Workflow completo para finalizar uma feature. Encadeia `@qa-agent` → `/docs` → `$commit` → `$pull-request` em sequencia, pausando nos pontos que precisam de decisao do usuario.
+Workflow completo para finalizar uma feature. Encadeia `$qa-agent` → docs → `$commit` → `$pull-request` em sequencia, pausando nos pontos que precisam de decisao do usuario.
 
 ## Uso
 
@@ -53,11 +53,11 @@ Se o diff estiver vazio: avisar "Nenhuma diferença em relação à `{BASE}`. Na
 
 ---
 
-### Fase 1/4 — Review (via @qa-agent)
+### Fase 1/4 — Review (via $qa-agent)
 
-Invocar o `@qa-agent` passando o contexto já coletado (diff, branch, card Jira).
+Invocar o `$qa-agent` passando o contexto ja coletado (diff, branch, card Jira).
 
-O `@qa-agent` irá:
+O `$qa-agent` ira:
 - Verificar cobertura de testes por arquivo
 - Validar cada critério de aceite do Jira contra o código
 - Checar Design System, padrões, segurança e qualidade profunda
@@ -66,10 +66,10 @@ O `@qa-agent` irá:
 **Ponto de pausa — se houver blockers:**
 ```
 --- Fase 1/4: Review ---
-[relatório do @qa-agent]
+[relatorio do $qa-agent]
 
 {N} blocker(s) encontrado(s). Corrija-os antes de continuar.
-Quer que o @qa-agent aplique as correções automaticamente?
+Quer que o $qa-agent aplique as correcoes automaticamente?
 Quando terminar, responda "continuar".
 ```
 
