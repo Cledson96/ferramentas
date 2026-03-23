@@ -1,17 +1,13 @@
 ---
 name: project-context
-description: Use para gerar, reutilizar e atualizar contexto leve de qualquer repositorio usando Repomix como motor principal. Acione quando abrir um projeto pela primeira vez, quando quiser economizar tokens ao trabalhar no repo, quando precisar criar ou atualizar `.context/project-context.md`, quando quiser verificar se o contexto do projeto esta stale, quando precisar criar ou atualizar o `AGENTS.md` com ponteiros para o contexto do projeto, ou quando o usuario mencionar `/jc:context`, `jc-context` ou pedir o workflow equivalente de contexto da JusCash no Codex.
+description: Use para gerar, reutilizar e atualizar contexto leve de qualquer repositorio usando Repomix como motor principal. Acione quando abrir um projeto pela primeira vez, quando quiser economizar tokens ao trabalhar no repo, quando precisar criar ou atualizar `.context/project-context.md`, quando quiser verificar se o contexto do projeto esta stale, ou quando precisar criar ou atualizar o `AGENTS.md` com ponteiros para o contexto do projeto.
 ---
 
 # Skill: Project Context
 
 Use o script versionado desta skill para criar e manter o contexto leve do projeto.
 
-## Compatibilidade JusCash
-
-Invocacao original no Claude: `/jc:context`
-
-Invocacao equivalente no Codex: `$project-context`
+Invocacao no Codex: `$project-context`
 
 ## Script
 

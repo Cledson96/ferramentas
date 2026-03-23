@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Context"
   short_description: "Gera e mantem contexto leve do projeto"
-  default_prompt: "Use $project-context para executar o workflow de contexto do projeto com Repomix, inclusive como substituto de /jc:context."
+  default_prompt: "Use $project-context para executar o workflow de contexto do projeto com Repomix no Codex."

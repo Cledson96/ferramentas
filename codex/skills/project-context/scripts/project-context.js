@@ -33,7 +33,6 @@ const WATCH_FILE_NAMES = new Set([
   "Gemfile",
   "README.md",
   "README",
-  "CLAUDE.md",
   "AGENTS.md",
   "tsconfig.json",
   "tsconfig.base.json",
@@ -442,7 +441,7 @@ function detectEntryPoints(rootDir) {
 
 function detectKeyFiles(rootDir) {
   const candidates = [
-    "package.json", "README.md", "CLAUDE.md", "AGENTS.md",
+    "package.json", "README.md", "AGENTS.md",
     "tsconfig.json", "tsconfig.base.json",
     "pyproject.toml", "requirements.txt", "Cargo.toml", "go.mod",
     "prisma/schema.prisma", "docker-compose.yml", "docker-compose.yaml",
