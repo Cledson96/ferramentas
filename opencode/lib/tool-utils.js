@@ -34,7 +34,12 @@ export function runJsonScript(scriptPath, args) {
     throw new Error(message);
   }
 
-  return parsed ?? { ok: true, output: stdout };
+  return formatToolResult(parsed ?? { ok: true, output: stdout });
+}
+
+export function formatToolResult(value) {
+  if (typeof value === "string") return value;
+  return JSON.stringify(value, null, 2);
 }
 
 export function runGit(cwd, gitArgs) {

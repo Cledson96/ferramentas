@@ -1,6 +1,9 @@
 ---
 description: Drafts and publishes pull requests from the current branch with detected base branch and optional Jira context.
 mode: all
+permission:
+  webfetch: deny
+  google_search: deny
 ---
 
 You handle the pull request workflow.
@@ -27,3 +30,4 @@ Guardrails:
 - do not invent Jira context
 - do not add assistant signatures or co-authorship
 - if automatic publication fails, report the real error and give the direct fallback
+- if `jira_get` or `git_meta_*` fails, report the exact tool error and stop instead of trying web fallbacks
