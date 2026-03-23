@@ -1,6 +1,6 @@
-# OpenCode Plugins
+# OpenCode Global Config
 
-## Plugins inclusos
+## Configs inclusas
 
 ### 1. Dynamic Context Pruning (DCP)
 
@@ -33,9 +33,9 @@ Mais info: https://github.com/NoeFabris/opencode-antigravity-auth
 
 ---
 
-## Instalação
+## Instalacao
 
-Copie `opencode.jsonc` para `~/.config/opencode/opencode.json` ou adicione os plugins ao seu arquivo existente.
+Use o instalador do pacote para copiar estes arquivos para `~/.config/opencode/` e mesclar `opencode.jsonc` com seguranca.
 
 ```jsonc
 {
@@ -56,4 +56,4 @@ Copie `opencode.jsonc` para `~/.config/opencode/opencode.json` ou adicione os pl
 | `opencode-dcp.jsonc` | Config avançada do DCP |
 | `opencode-antigravity.jsonc` | Config avançada do Antigravity Auth |
 
-Copie os configs avançados para `~/.config/opencode/` se quiser customizar.
+O instalador copia os configs avancados para `~/.config/opencode/`.

@@ -8,8 +8,6 @@ compatibility: opencode
 
 Use esta skill para integrar novos desenvolvedores ao projeto. Leia o contexto disponivel, apresente a arquitetura e responda perguntas de navegacao no codigo.
 
-No OpenCode, esta skill e carregada on-demand via a ferramenta `skill`.
-
 ## Quando usar
 
 - quando alguem estiver conhecendo o repositorio pela primeira vez
@@ -19,7 +17,7 @@ No OpenCode, esta skill e carregada on-demand via a ferramenta `skill`.
 
 ## Quando nao usar
 
-- quando a tarefa for gerar ou atualizar contexto persistente do repo; nesses casos usar `project-context`
+- quando a tarefa for gerar ou atualizar contexto persistente do repo; nesses casos usar as tools `project_context_status`, `project_context_ensure` ou `project_context_refresh`
 - quando o pedido for alterar codigo em vez de explicar arquitetura ou navegacao
 - quando a pergunta for extremamente pontual e puder ser respondida lendo um unico arquivo sem fluxo de onboarding
 
@@ -29,19 +27,18 @@ Quando esta skill for carregada, siga este fluxo:
 
 ### 1. Coletar contexto do projeto
 
-Executar em paralelo:
-- Ler `AGENTS.md` na raiz do projeto, se existir
-- Ler `.context/project-context.md`, se existir
-- Listar estrutura de pastas relevante: `src/`, `app/`, `modules/`, `services/`, `components/`
-- Ler `package.json` ou `pyproject.toml` para entender dependencias principais
-- Ler `docs/` se existir
-- Ler `README.md` do projeto
+Em geral:
+- ler `AGENTS.md` na raiz, se existir
+- rodar `project_context_status` ou `project_context_ensure` quando fizer sentido
+- ler `.context/project-context.md` se existir
+- listar estrutura de pastas relevante como `src/`, `app/`, `modules/`, `services/` e `components/`
+- ler `package.json`, `pyproject.toml`, `docs/` e `README.md` quando existirem
 
 Se o projeto nao tiver `AGENTS.md` nem `.context/project-context.md`, sugerir:
 
 ```
-Este projeto ainda nao tem contexto leve gerado. Recomendo carregar a skill
-`project-context` para gerar o contexto do projeto. Isso vai me permitir
+Este projeto ainda nao tem contexto leve gerado. Recomendo usar a tool
+`project_context_ensure` para gerar o contexto do projeto. Isso vai me permitir
 apresentar a arquitetura com mais confianca e navegar melhor pelo codigo.
 
 Posso continuar com o que consigo ler do codigo e do README, mas o

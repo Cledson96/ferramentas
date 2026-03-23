@@ -19,7 +19,7 @@ No OpenCode, esta skill e carregada on-demand via a ferramenta `skill`.
 ## Quando nao usar
 
 - quando o pedido for apenas revisar codigo sem criar PR; nesse caso usar `review` ou `qa-agent`
-- quando a tarefa for apenas consultar dados do Jira; nesse caso usar `jira-rest`
+- quando a tarefa for apenas consultar dados do Jira; nesse caso usar `jira_get`, `jira_search` ou `jira_jql`
 - quando nao houver branch pronta para publicar
 
 ## Instrucoes
@@ -39,7 +39,7 @@ Quando houver intencao de abrir PR, siga estes passos na ordem:
 
 1. Se o usuario passou argumento, use esse codigo.
 2. Caso contrario, execute `git branch --show-current` e extraia `TASK-ID` por regex (`[A-Z]+-[0-9]+`).
-3. Se encontrar task, use `jira-rest` para buscar:
+3. Se encontrar task, use `jira_get` para buscar:
    - `summary`
    - `description`
    - `issuetype.name`
