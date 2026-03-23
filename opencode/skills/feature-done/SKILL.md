@@ -1,6 +1,7 @@
 ---
 name: feature-done
 description: "Workflow final pos-feature: revisa a branch, atualiza documentacao, fecha commit e prepara PR com pausas apenas nos pontos de decisao real."
+compatibility: opencode
 ---
 
 # Skill: Feature Done
@@ -8,6 +9,20 @@ description: "Workflow final pos-feature: revisa a branch, atualiza documentacao
 Workflow completo para finalizar uma feature. Encadeia `qa-agent` → `confluence-docs` → `commit` → PR em sequencia, com pausas apenas onde existe risco, bloqueio ou decisao do usuario.
 
 No OpenCode, esta skill e carregada on-demand via a ferramenta `skill`.
+
+Papel no pacote: workflow/orchestrator.
+
+## Quando usar
+
+- quando a implementacao da branch estiver pronta e o usuario quiser fechar o ciclo ate commit e PR
+- quando fizer sentido orquestrar QA, docs, commit e pull request em sequencia
+- quando o objetivo for reduzir pausas e parar apenas nos pontos de decisao real
+
+## Quando nao usar
+
+- quando a feature ainda estiver em implementacao ativa; nesse caso usar `start-feature` ou seguir editando normalmente
+- quando o usuario quiser apenas review, apenas commit ou apenas PR; nesses casos usar a skill especializada correspondente
+- quando nao houver diff relevante entre a branch atual e a base
 
 ## Instrucoes
 
@@ -25,7 +40,7 @@ Detectar a branch base nesta ordem:
 - `origin/main`
 - `origin/master`
 
-Confirmar a base com o usuario antes de continuar.
+Se a base estiver claramente detectada, seguir com ela sem interromper o fluxo. So perguntar ao usuario se houver ambiguidade real ou se ele tiver informado outra base.
 
 Depois da confirmacao, executar em paralelo:
 - `git diff {BASE}...HEAD --stat`
@@ -86,11 +101,11 @@ Depois disso, carregar a skill `commit` para:
 
 Se a branch ainda nao tiver upstream remoto, perguntar se deve fazer push antes da PR.
 
-Para criar a PR:
+Depois, carregar a skill `pull-request` para:
 - detectar e confirmar a base
-- montar `title` e `body` com resumo da feature
+- montar `title` e `body`
 - revisar o conteudo com o usuario
-- publicar usando `gh pr create`
+- publicar usando o fluxo operacional da skill
 
 **Pausa essencial:** confirmacao da criacao/publicacao da PR.
 
@@ -121,6 +136,17 @@ Parar apenas nestes pontos:
 
 Nao pausar apenas para dizer que uma fase foi concluida com sucesso.
 
+### Delegacao no workflow
+
+Este workflow orquestra outras skills. Sempre que uma fase for especializada, usar a skill responsavel em vez de reimplementar o comportamento:
+
+- `qa-agent` para QA profundo
+- `confluence-docs` para documentacao tecnica
+- `commit` para mensagem e execucao de commit
+- `pull-request` para preparacao e publicacao da PR
+
+Se uma dessas skills tiver delegacao barata para tarefas mecanicas, ela deve acontecer dentro da skill especializada, nao no workflow principal.
+
 ### Resumo final
 
 Apresentar o encerramento neste formato:
@@ -141,7 +167,8 @@ Proximo passo sugerido:
 
 ## Guardrails
 
-- Nao reimplementar dentro desta skill o fluxo que ja pertence a `confluence-docs`, `commit` ou `review`.
+- Nao usar comandos ou nomenclaturas legadas neste fluxo.
+- Nao reimplementar dentro desta skill o fluxo que ja pertence a `confluence-docs`, `commit`, `pull-request` ou `qa-agent`.
 - Nao criar PR sem confirmacao do usuario.
 - Nao adicionar assinatura do assistente, `Co-Authored-By` ou mencoes ao assistente.
 - Nao depender de MCP externo.
