@@ -58,6 +58,10 @@ function getAuthCandidates() {
   ];
 }
 
+function normalizeBaseUrl(baseUrl) {
+  return String(baseUrl || "").trim().replace(/\/+$/, "");
+}
+
 function loadAuth() {
   const candidates = [...new Set(getAuthCandidates())];
   const existingPath = candidates.find((candidate) => fs.existsSync(candidate));
@@ -69,8 +73,10 @@ function loadAuth() {
         expectedShape: {
           baseUrl: "https://juscash.atlassian.net",
           email: "usuario@empresa.com",
-          apiToken: "token_atlassian",
+          token: "token_atlassian",
         },
+        nextStep:
+          "Peca ao usuario baseUrl, email e token. Depois execute o comando setup desta skill para salvar as credenciais globalmente.",
       },
     });
   }
@@ -93,25 +99,25 @@ function loadAuth() {
     });
   }
 
-  const baseUrl = String(parsed.baseUrl || "").trim().replace(/\/+$/, "");
+  const baseUrl = normalizeBaseUrl(parsed.baseUrl || "");
   const email = String(parsed.email || "").trim();
-  const apiToken = String(parsed.apiToken || parsed.token || "").trim();
+  const token = String(parsed.token || parsed.apiToken || "").trim();
 
-  if (!baseUrl || !email || !apiToken) {
+  if (!baseUrl || !email || !token) {
     fail("Atlassian credentials file is missing required fields.", {
       details: {
         path: existingPath,
-        required: ["baseUrl", "email", "apiToken"],
-        acceptedTokenKeys: ["apiToken", "token"],
+        required: ["baseUrl", "email", "token"],
+        acceptedTokenKeys: ["token", "apiToken"],
       },
     });
   }
 
-  return { path: existingPath, baseUrl, email, apiToken };
+  return { path: existingPath, baseUrl, email, token };
 }
 
 function buildAuthHeader(auth) {
-  return `Basic ${Buffer.from(`${auth.email}:${auth.apiToken}`).toString("base64")}`;
+  return `Basic ${Buffer.from(`${auth.email}:${auth.token}`).toString("base64")}`;
 }
 
 function parseJsonSafe(text) {
@@ -763,11 +769,42 @@ async function handleLink(auth, args) {
   return jiraRequest(auth, "POST", "/rest/api/3/issueLink", { body });
 }
 
+function setupCredentials(args) {
+  const baseUrl = requireArg(args, "base-url");
+  const email = requireArg(args, "email");
+  const token = requireArg(args, "token");
+  const primaryPath = getAuthCandidates()[0];
+
+  fs.mkdirSync(path.dirname(primaryPath), { recursive: true });
+  fs.writeFileSync(
+    primaryPath,
+    JSON.stringify(
+      {
+        baseUrl: normalizeBaseUrl(baseUrl),
+        email,
+        token,
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  return {
+    ok: true,
+    command: "setup",
+    path: primaryPath,
+    baseUrl: normalizeBaseUrl(baseUrl),
+    email,
+  };
+}
+
 function printHelp() {
   printJson({
     ok: true,
     usage: "jira.js <command> [options]",
     commands: [
+      "setup --base-url https://juscash.atlassian.net --email usuario@empresa.com --token TOKEN",
       "get --issue ABC-123 [--fields summary,status] [--expand renderedFields]",
       "search --query \"text\" [--maxResults 10]",
       "jql --jql \"project = JS ORDER BY updated DESC\" [--maxResults 20] [--fields summary,status]",
@@ -788,6 +825,16 @@ function printHelp() {
       "edit --issue ABC-123 [--summary \"titulo\"] [--description \"texto\"] [--fields-json '{...}']",
       "link --inward-issue ABC-1 --outward-issue ABC-2 --type Blocks [--comment \"texto\"]",
     ],
+    credentialSearchOrder: [
+      "~/.config/opencode/atlassian.json",
+      "~/.codex/atlassian.json",
+      "~/.claude/atlassian.json",
+    ],
+    expectedCredentialShape: {
+      baseUrl: "https://juscash.atlassian.net",
+      email: "usuario@empresa.com",
+      token: "token_atlassian",
+    },
   });
 }
 
@@ -797,6 +844,11 @@ async function main() {
 
   if (!command || command === "help" || command === "--help") {
     printHelp();
+    return;
+  }
+
+  if (command === "setup") {
+    printJson(setupCredentials(args));
     return;
   }
 
