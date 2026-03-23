@@ -1,4 +1,0 @@
-interface:
-  display_name: "JC Devops Agent"
-  short_description: "Agente JusCash de Devops Agent no Codex"
-  default_prompt: "Use $jc-devops-agent para executar a analise especializada equivalente no Codex."

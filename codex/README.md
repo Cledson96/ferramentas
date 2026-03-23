@@ -41,7 +41,7 @@ Skills versionadas nesta v1:
 - `github-terminal`
 - `commit`
 - `design-system`
-- `jc-devops-agent`
+- `devops-agent`
 - `jc-feature-done`
 - `onboarding`
 - `pull-request`
