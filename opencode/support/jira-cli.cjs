@@ -261,6 +261,46 @@ function normalizeDescription(description) {
   };
 }
 
+function buildParagraphNode(text) {
+  return {
+    type: "paragraph",
+    content: [{ type: "text", text: String(text) }],
+  };
+}
+
+function validateAdfDocument(value, argName = "body-adf-json") {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    fail(`Expected a JSON object for --${argName}.`);
+  }
+
+  if (value.type !== "doc") {
+    fail(`ADF payload in --${argName} must have type='doc'.`);
+  }
+
+  if (value.version !== 1) {
+    fail(`ADF payload in --${argName} must have version=1.`);
+  }
+
+  if (!Array.isArray(value.content)) {
+    fail(`ADF payload in --${argName} must contain an array field 'content'.`);
+  }
+
+  return value;
+}
+
+function parseAdfArg(args, name = "body-adf-json") {
+  if (!args[name]) return undefined;
+  return validateAdfDocument(parseJsonArg(args, name), name);
+}
+
+function mergeAdfWithPrefix(prefixNodes, doc) {
+  return {
+    type: "doc",
+    version: 1,
+    content: [...prefixNodes, ...doc.content],
+  };
+}
+
 function plainTextFromAdf(node) {
   if (!node) return "";
 
@@ -471,10 +511,11 @@ async function handleJql(auth, args) {
 
 async function handleComment(auth, args) {
   const issue = requireArg(args, "issue");
-  const body = buildStructuredCommentBody(args);
+  const adfBody = parseAdfArg(args);
+  const body = adfBody || normalizeDescription(buildStructuredCommentBody(args));
   return jiraRequest(auth, "POST", `/rest/api/3/issue/${encodeURIComponent(issue)}/comment`, {
     body: {
-      body: normalizeDescription(body),
+      body,
     },
   });
 }
@@ -590,14 +631,6 @@ async function handleReply(auth, args) {
     };
   }
 
-  const body = buildStructuredCommentBody(
-    {
-      ...args,
-      mode: args.mode || "resposta",
-    },
-    replyContext
-  );
-
   const decoratedHeader = [
     `Comentario alvo: ${replyContext.targetCommentId}`,
     `Autor original: ${replyContext.author}`,
@@ -607,11 +640,22 @@ async function handleReply(auth, args) {
     decoratedHeader.push("Observacao: contexto do comentario alvo informado manualmente por fallback.");
   }
 
-  const decoratedBody = `${decoratedHeader.join("\n")}\n\n${body}`;
+  const adfBody = parseAdfArg(args);
+  const finalBody = adfBody
+    ? mergeAdfWithPrefix(decoratedHeader.map((line) => buildParagraphNode(line)), adfBody)
+    : normalizeDescription(
+        `${decoratedHeader.join("\n")}\n\n${buildStructuredCommentBody(
+          {
+            ...args,
+            mode: args.mode || "resposta",
+          },
+          replyContext
+        )}`
+      );
 
   return jiraRequest(auth, "POST", `/rest/api/3/issue/${encodeURIComponent(issue)}/comment`, {
     body: {
-      body: normalizeDescription(decoratedBody),
+      body: finalBody,
     },
   });
 }
@@ -811,8 +855,10 @@ function printHelp() {
       "comments --issue ABC-123 [--maxResults 20] [--orderBy -created]",
       "comments --issue ABC-123 --comment-id 42723",
       "comment --issue ABC-123 --body \"texto\"",
+      "comment --issue ABC-123 --body-adf-json '{\"type\":\"doc\",\"version\":1,\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Comentario rico\",\"marks\":[{\"type\":\"strong\"}]}]}]}'",
       "comment --issue ABC-123 --mode progresso --criteria-json '[{\"title\":\"Crit 1\",\"status\":\"realizado\",\"detail\":\"Correcao aplicada e validada\"}]' --realizado-json '[\"Ajustado fluxo X\"]' --pendencias-json '[\"Validar caso Y\"]' --bloqueios-json '[\"sem bloqueios\"]' --proximo-passo-json '[\"Abrir PR\"]'",
       "reply --issue ABC-123 --comment-id 42723 --body \"texto\"",
+      "reply --issue ABC-123 --comment-id 42723 --body-adf-json '{\"type\":\"doc\",\"version\":1,\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Resposta rica\"}]}]}'",
       "reply --issue ABC-123 --comment-id 42723 --target-summary \"Pedido de validacao do fluxo\" --points-json '[{\"title\":\"Duvida 1\",\"status\":\"respondido\",\"response\":\"Fluxo ajustado com validacao\"}]' --realizado-json '[\"Identificada causa raiz\"]' --pendencias-json '[\"Validar em staging\"]' --bloqueios-json '[\"sem bloqueios\"]' --proximo-passo-json '[\"Comentar evidencias finais\"]'",
       "transitions --issue ABC-123",
       "transition --issue ABC-123 --transition-id 31 [--fields '{...}'] [--update '{...}']",

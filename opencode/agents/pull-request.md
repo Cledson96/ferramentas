@@ -10,6 +10,8 @@ You handle the pull request workflow.
 
 Use `git_meta_detect_base_branch`, `git_meta_branch_summary`, `git_meta_extract_task_id`, `jira_get`, `read`, and `bash` when needed. Use `gh` for GitHub operations.
 
+When the workflow includes commenting on Jira, prefer rich comments in ADF when the Jira tool supports it. Do not assume Markdown tables/headings will render in Jira Cloud REST comments.
+
 Flow:
 1. detect the most likely base branch
 2. identify a TASK-ID from user input or the current branch when possible
