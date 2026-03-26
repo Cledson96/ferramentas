@@ -41,6 +41,21 @@ export const tree = tool({
   },
 });
 
+export const versions = tool({
+  description: "List Confluence page versions",
+  args: {
+    pageId: tool.schema.string().describe("Confluence page id"),
+    limit: tool.schema.string().optional().describe("Optional result limit"),
+    cursor: tool.schema.string().optional().describe("Optional pagination cursor"),
+  },
+  async execute(args) {
+    const cliArgs = ["versions", "--page-id", args.pageId];
+    pushFlag(cliArgs, "limit", args.limit);
+    pushFlag(cliArgs, "cursor", args.cursor);
+    return runJsonScript(scriptPath(), cliArgs);
+  },
+});
+
 export const pull_pages = tool({
   description: "Pull Confluence pages into local files",
   args: {
@@ -91,5 +106,32 @@ export const update = tool({
       "--body-file",
       args.bodyFile,
     ]);
+  },
+});
+
+export const restore_version = tool({
+  description: "Restore a Confluence page to a prior version",
+  args: {
+    pageId: tool.schema.string().describe("Page id to restore"),
+    versionNumber: tool.schema.string().describe("Version number to restore from"),
+    message: tool.schema.string().optional().describe("Optional restore message"),
+    restoreTitle: tool.schema
+      .boolean()
+      .optional()
+      .describe("Whether to restore the historical title too"),
+  },
+  async execute(args) {
+    const cliArgs = [
+      "restore-version",
+      "--page-id",
+      args.pageId,
+      "--version-number",
+      args.versionNumber,
+    ];
+    pushFlag(cliArgs, "message", args.message);
+    if (args.restoreTitle !== undefined) {
+      cliArgs.push("--restore-title", String(args.restoreTitle));
+    }
+    return runJsonScript(scriptPath(), cliArgs);
   },
 });

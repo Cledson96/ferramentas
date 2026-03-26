@@ -198,6 +198,62 @@ function parseJsonArg(args, name) {
   }
 }
 
+function parseIntegerArg(args, name, options = {}) {
+  const rawValue = args[name];
+
+  if (rawValue === undefined || rawValue === null || rawValue === "") {
+    if (options.defaultValue !== undefined) {
+      return options.defaultValue;
+    }
+    fail(`Missing required argument --${name}.`);
+  }
+
+  const value = Number.parseInt(String(rawValue), 10);
+
+  if (!Number.isInteger(value)) {
+    fail(`Invalid integer for --${name}.`, {
+      details: { value: rawValue },
+    });
+  }
+
+  if (options.min !== undefined && value < options.min) {
+    fail(`Argument --${name} must be >= ${options.min}.`, {
+      details: { value },
+    });
+  }
+
+  return value;
+}
+
+function parseBooleanArg(args, name, options = {}) {
+  const rawValue = args[name];
+
+  if (rawValue === undefined) {
+    return options.defaultValue;
+  }
+
+  if (rawValue === true || rawValue === false) {
+    return rawValue;
+  }
+
+  const normalized = String(rawValue).trim().toLowerCase();
+
+  if (["true", "1", "yes", "y"].includes(normalized)) {
+    return true;
+  }
+
+  if (["false", "0", "no", "n"].includes(normalized)) {
+    return false;
+  }
+
+  fail(`Invalid boolean for --${name}.`, {
+    details: {
+      value: rawValue,
+      accepted: ["true", "false"],
+    },
+  });
+}
+
 function readBodyFile(filePath) {
   if (!filePath) {
     fail("Missing required argument --body-file.");
@@ -546,6 +602,77 @@ async function updatePage(auth, args) {
   };
 }
 
+async function listPageVersions(auth, args) {
+  const pageId = requireArg(args, "page-id");
+  const response = await confluenceRequest(auth, "GET", `/api/v2/pages/${pageId}/versions`, {
+    query: {
+      limit: args.limit || "25",
+      cursor: args.cursor,
+    },
+  });
+  const next = response.data._links?.next || null;
+  const nextCursor = next ? new URL(next, auth.baseUrl).searchParams.get("cursor") : null;
+
+  const versions = Array.isArray(response.data.results)
+    ? response.data.results
+    : Array.isArray(response.data.items)
+      ? response.data.items
+      : [];
+
+  return {
+    ok: true,
+    command: "versions",
+    pageId,
+    count: versions.length,
+    next,
+    nextCursor,
+    results: versions.map((version) => ({
+      number: version.number || null,
+      message: version.message || null,
+      minorEdit: version.minorEdit ?? null,
+      authorId: version.authorId || version.author?.accountId || null,
+      createdAt: version.createdAt || null,
+    })),
+  };
+}
+
+async function restorePageVersion(auth, args) {
+  const pageId = requireArg(args, "page-id");
+  const versionNumber = parseIntegerArg(args, "version-number", { min: 1 });
+  const restoreTitle = parseBooleanArg(args, "restore-title", { defaultValue: true });
+  const message = args.message && args.message !== true ? String(args.message) : undefined;
+  const payload = {
+    operationKey: "restore",
+    params: {
+      versionNumber,
+      restoreTitle,
+    },
+  };
+
+  if (message) {
+    payload.params.message = message;
+  }
+
+  const response = await confluenceRequest(
+    auth,
+    "POST",
+    `/rest/api/content/${pageId}/version`,
+    { body: payload },
+  );
+
+  return {
+    ok: true,
+    command: "restore-version",
+    pageId,
+    restoredFromVersion: versionNumber,
+    restoreTitle,
+    version: response.data.number || response.data.version?.number || null,
+    message: response.data.message || message || null,
+    createdAt: response.data.createdAt || null,
+    by: response.data.by?.displayName || response.data.by?.username || null,
+  };
+}
+
 function setupCredentials(args) {
   const baseUrl = requireArg(args, "base-url");
   const email = requireArg(args, "email");
@@ -587,9 +714,11 @@ Comandos:
   get      --page-id <id> [--body-format storage]
   children --page-id <id> [--limit 250]
   tree     --page-id <id> [--limit 250]
+  versions --page-id <id> [--limit 25] [--cursor <cursor>]
   pull-pages --pages-json "<json>" [--output-dir docs]
   create   --title "<titulo>" --body-file <path> [--space-id <id>] [--parent-id <id>]
   update   --page-id <id> --title "<titulo>" --body-file <path>
+  restore-version --page-id <id> --version-number <n> [--message "texto"] [--restore-title true|false]
 
 Credenciais (ordem de busca):
   - ~/.config/opencode/atlassian.json (primário)
@@ -609,10 +738,12 @@ Exemplos em pwsh:
   node confluence.js get --page-id 769196193
   node confluence.js children --page-id 770441364
   node confluence.js tree --page-id 770441364
+  node confluence.js versions --page-id 769196193
   $pages = '[{"pageId":"769196193","outputFile":"docs/07-API-ENDPOINTS-SIJ.xhtml"}]'
   node confluence.js pull-pages --pages-json $pages
   node confluence.js create --title "Nova Pagina" --body-file "C:\\temp\\body.xhtml"
   node confluence.js update --page-id 769196193 --title "Pagina Atualizada" --body-file "C:\\temp\\body.xhtml"
+  node confluence.js restore-version --page-id 769196193 --version-number 17 --message "Rollback apos upload incorreto"
 `.trim();
 
 async function main() {
@@ -647,6 +778,9 @@ async function main() {
     case "tree":
       result = await getTree(auth, args);
       break;
+    case "versions":
+      result = await listPageVersions(auth, args);
+      break;
     case "pull-pages":
       result = await pullPages(auth, args);
       break;
@@ -655,6 +789,9 @@ async function main() {
       break;
     case "update":
       result = await updatePage(auth, args);
+      break;
+    case "restore-version":
+      result = await restorePageVersion(auth, args);
       break;
     default:
       fail(`Unknown command "${command}".`, { details: { help: HELP } });

@@ -8,13 +8,13 @@ compatibility: opencode
 
 Use esta skill para fluxos editoriais de documentacao tecnica no Confluence.
 
-Ela nao substitui as custom tools de Confluence. Use as tools `confluence_get`, `confluence_search`, `confluence_tree`, `confluence_pull_pages`, `confluence_create` e `confluence_update` como base operacional.
+Ela nao substitui as custom tools de Confluence. Use `confluence_get`, `confluence_search`, `confluence_tree`, `confluence_versions`, `confluence_pull_pages`, `confluence_create`, `confluence_update` e `confluence_restore_version` como base operacional.
 
 ## Quando usar
 
 - quando o pedido for sobre templates de documentacao tecnica
 - quando o usuario quiser importar docs do Confluence para o repositorio
-- quando o usuario quiser atualizar docs locais em `.xhtml`
+- quando o usuario quiser atualizar arquivos `.xhtml` locais
 - quando o usuario quiser publicar ou sincronizar docs locais de volta ao Confluence
 - quando a tarefa envolver naming, estrutura e organizacao de arquivos em `docs/`
 
@@ -37,9 +37,12 @@ Depois orientar o setup global da integracao Atlassian antes de seguir.
 
 Delegar apenas tarefas mecanicas e de baixo risco, por exemplo:
 
+- `confluence_get`
 - `confluence_pull_pages`
+- `confluence_versions`
 - `confluence_create`
 - `confluence_update`
+- `confluence_restore_version`
 - mapeamento de `pageId` para arquivos locais
 - organizacao mecanica de arquivos `.xhtml` em `docs/`
 - sincronizacao final ja definida entre repositorio e Confluence
@@ -49,23 +52,34 @@ Manter no agente principal:
 - entendimento da intencao do usuario
 - escolha de template
 - decisao de quais paginas entram no fluxo
+- decisao de quando listar versoes ou restaurar uma versao anterior
+- analise editorial da pagina atual antes de atualizar
+- comparacao entre estado atual, template esperado e mudanca desejada
+- decisao sobre reformatacao estrutural antes de publicar
 - revisao do conteudo local
 - validacao antes de publicar
 
 Regras de delegacao:
 
 - delegar apenas quando os parametros ja estiverem fechados
+- para `update` de pagina existente, delegar o pull inicial da versao atual e o snapshot local por ser tarefa mecanica e de baixo risco
 - nao delegar quando houver ambiguidade editorial, falta de contexto ou decisao estrutural
 - apos a delegacao, revisar o resultado antes de confirmar publicacao ou sincronizacao
 
-## Fluxo padrao
+## Fluxo recomendado
 
 1. Entender se o trabalho e de importacao, edicao local, sincronizacao ou criacao do zero.
 2. Se existir pagina no Confluence, comecar pela pagina pai e usar `confluence_tree` para decidir o conjunto de paginas relevantes.
-3. Fazer pull das paginas escolhidas com `confluence_pull_pages`, salvando em `docs/` com extensao `.xhtml`.
-4. Atualizar os arquivos locais preservando exatamente o Storage Format XHTML.
-5. Se a tarefa for documentacao tecnica, escolher o template mais aderente antes de criar ou reorganizar conteudo.
-6. So publicar com `confluence_create` ou `confluence_update` depois de revisar o XHTML local.
+3. Se a tarefa for documentacao tecnica, escolher o template mais aderente antes de criar ou reorganizar conteudo.
+4. Quando a pagina ja existir, puxar obrigatoriamente a versao atual do Confluence antes de qualquer publicacao e salvar um snapshot local em `docs/` com extensao `.xhtml`.
+5. Quando a documentacao estiver distribuida em pagina mae e paginas filhas, puxar e revisar a pagina mae e tambem as filhas relevantes antes de editar.
+6. Atualizar os arquivos locais preservando exatamente o Storage Format XHTML.
+7. Antes de publicar um `update`, analisar a pagina atual, identificar o que realmente precisa mudar e validar se a estrutura continua aderente ao template esperado.
+8. Se a pagina atual estiver fora do template esperado, perguntar ao usuario se ele quer apenas atualizar o conteudo atual ou reformatar a pagina para alinhamento estrutural antes de publicar.
+9. So publicar com `confluence_create` ou `confluence_update` depois de revisar o XHTML local.
+10. Se for necessario investigar historico ou recuperar uma publicacao incorreta, usar `confluence_versions` e `confluence_restore_version`.
+
+Use `references/doc-workflow.md` como guia detalhado para update seguro, validacao contra template, pagina mae/filhas e rollback.
 
 ## Templates tecnicos
 
@@ -100,10 +114,35 @@ Heuristica de selecao:
 - usar `Servicos EDA` para servicos individuais que publicam ou consomem eventos
 - usar `PRD Tecnico` quando o pedido for uma especificacao tecnica orientada a produto ou entrega
 
+### Backend Node.js
+
+Ao usar o template `Backend Node.js` (`852525087`), tratar como blocos estruturais obrigatorios quando eles fizerem parte da pagina:
+
+- titulo com nome do projeto
+- data do primeiro deploy
+- data do ultimo deploy
+- data da atualizacao do documento
+- sumario
+- area de apoio com links uteis
+
+Regras especificas para esse template:
+
+- preservar o layout base com blocos `fixed-width` e a secao lateral `two_right_sidebar` quando eles ja existirem
+- preservar os macros `info` e `toc`, incluindo parametros e identificadores existentes
+- manter a area de apoio visivel; nao remover a sidebar so porque o conteudo principal mudou
+- se a documentacao estiver grande demais, usar pagina mae com visao geral e distribuir o detalhamento em paginas filhas
+- quando o template estiver replicado em pagina mae e filhas, manter em ambas o cabecalho minimo com titulo, datas e area de apoio
+- quando houver paginas filhas, manter na pagina mae o sumario com links para as filhas e revisar o conjunto antes de publicar
+
+Checklist operacional detalhado em `references/doc-workflow.md`.
+
 ## Convencoes locais
 
 - usar `docs/` como destino padrao
 - usar extensao `.xhtml`
+- para pagina existente, sempre puxar e salvar primeiro a versao atual do Confluence antes de qualquer publicacao
+- usar o snapshot local como base obrigatoria de revisao e edicao em atualizacoes
+- quando houver pagina mae e paginas filhas, puxar e revisar todas as paginas relevantes do conjunto antes de publicar
 - preservar o corpo exatamente como veio da API quando o objetivo for espelhamento
 - nao prettificar, limpar ou reserializar o XHTML
 - nao remover `ac:*`, `ri:*`, `data-*`, `ac:local-id` ou `ac:macro-id`
@@ -115,50 +154,13 @@ Heuristica de selecao:
 - nao tratar a delegacao barata como substituto para decisao editorial
 - nao escolher template sem verificar aderencia ao contexto tecnico
 - nao publicar alteracoes sem antes revisar o XHTML local
+- nao atualizar pagina existente sem antes puxar e salvar a versao atual localmente
+- nao decidir sozinho por reformatacao estrutural quando a pagina atual estiver fora do template esperado
+- nao restaurar versao sem `pageId` e `versionNumber` explicitamente definidos
+- nao remover do template Node os blocos visiveis de titulo, datas, sumario e apoio sem uma decisao editorial explicita
 - nao converter automaticamente o corpo para Markdown ao sincronizar com o Confluence
 
-## Referencia rapida: Confluence Storage Format
+## Referencias
 
-```xml
-<!-- Headings -->
-<h1>Titulo</h1>
-<h2>Subtitulo</h2>
-
-<!-- Paragrafos -->
-<p>Texto com <strong>negrito</strong> e <em>italico</em>.</p>
-
-<!-- Codigo inline -->
-<code>valor</code>
-
-<!-- Macro: Bloco de Codigo -->
-<ac:structured-macro ac:name="code" ac:schema-version="1">
-  <ac:parameter ac:name="language">json</ac:parameter>
-  <ac:plain-text-body><![CDATA[{ "success": true }]]></ac:plain-text-body>
-</ac:structured-macro>
-
-<!-- Macro: Painel Info -->
-<ac:structured-macro ac:name="info" ac:schema-version="1">
-  <ac:rich-text-body><p>Atualizacao: <time datetime="2026-03-20" /></p></ac:rich-text-body>
-</ac:structured-macro>
-
-<!-- Macro: TOC -->
-<ac:structured-macro ac:name="toc" ac:schema-version="1">
-  <ac:parameter ac:name="maxLevel">2</ac:parameter>
-</ac:structured-macro>
-
-<!-- Tabela -->
-<table data-layout="default">
-  <tbody>
-    <tr><th><p>Coluna</p></th></tr>
-    <tr><td><p>Valor</p></td></tr>
-  </tbody>
-</table>
-
-<!-- Layout 2 colunas -->
-<ac:layout>
-  <ac:layout-section ac:type="two_equal">
-    <ac:layout-cell><!-- esquerda --></ac:layout-cell>
-    <ac:layout-cell><!-- direita --></ac:layout-cell>
-  </ac:layout-section>
-</ac:layout>
-```
+- `references/doc-workflow.md`
+- `references/macro-examples.md`
