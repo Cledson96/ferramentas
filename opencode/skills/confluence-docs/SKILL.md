@@ -116,3 +116,49 @@ Heuristica de selecao:
 - nao escolher template sem verificar aderencia ao contexto tecnico
 - nao publicar alteracoes sem antes revisar o XHTML local
 - nao converter automaticamente o corpo para Markdown ao sincronizar com o Confluence
+
+## Referencia rapida: Confluence Storage Format
+
+```xml
+<!-- Headings -->
+<h1>Titulo</h1>
+<h2>Subtitulo</h2>
+
+<!-- Paragrafos -->
+<p>Texto com <strong>negrito</strong> e <em>italico</em>.</p>
+
+<!-- Codigo inline -->
+<code>valor</code>
+
+<!-- Macro: Bloco de Codigo -->
+<ac:structured-macro ac:name="code" ac:schema-version="1">
+  <ac:parameter ac:name="language">json</ac:parameter>
+  <ac:plain-text-body><![CDATA[{ "success": true }]]></ac:plain-text-body>
+</ac:structured-macro>
+
+<!-- Macro: Painel Info -->
+<ac:structured-macro ac:name="info" ac:schema-version="1">
+  <ac:rich-text-body><p>Atualizacao: <time datetime="2026-03-20" /></p></ac:rich-text-body>
+</ac:structured-macro>
+
+<!-- Macro: TOC -->
+<ac:structured-macro ac:name="toc" ac:schema-version="1">
+  <ac:parameter ac:name="maxLevel">2</ac:parameter>
+</ac:structured-macro>
+
+<!-- Tabela -->
+<table data-layout="default">
+  <tbody>
+    <tr><th><p>Coluna</p></th></tr>
+    <tr><td><p>Valor</p></td></tr>
+  </tbody>
+</table>
+
+<!-- Layout 2 colunas -->
+<ac:layout>
+  <ac:layout-section ac:type="two_equal">
+    <ac:layout-cell><!-- esquerda --></ac:layout-cell>
+    <ac:layout-cell><!-- direita --></ac:layout-cell>
+  </ac:layout-section>
+</ac:layout>
+```
