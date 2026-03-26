@@ -14,7 +14,7 @@ const args = new Set(process.argv.slice(2));
 const command = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "install";
 const dryRun = args.has("--dry-run");
 
-const managedDirs = ["agents", "tools", "skills", "support", "scripts"];
+const managedDirs = ["agents", "tools", "skills", "support", "scripts", "lib"];
 const copiedFiles = [
   ["package.json", "package.json"],
   [path.join("config", "opencode-dcp.jsonc"), "opencode-dcp.jsonc"],

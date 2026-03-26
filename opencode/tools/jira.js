@@ -36,13 +36,20 @@ export const jql = tool({
 });
 
 export const comment = tool({
-  description: "Post a plain Jira comment",
+  description: "Post a Jira comment, plain text or rich ADF",
   args: {
     issue: tool.schema.string().describe("Issue key, e.g. ENG-123"),
-    body: tool.schema.string().describe("Comment body"),
+    body: tool.schema.string().optional().describe("Plain text comment body"),
+    bodyAdfJson: tool.schema
+      .string()
+      .optional()
+      .describe("ADF JSON string for rich Jira comments (takes precedence over body)"),
   },
   async execute(args) {
-    return runJsonScript(scriptPath(), ["comment", "--issue", args.issue, "--body", args.body]);
+    const cliArgs = ["comment", "--issue", args.issue];
+    pushFlag(cliArgs, "body", args.body);
+    pushFlag(cliArgs, "bodyAdfJson", args.bodyAdfJson);
+    return runJsonScript(scriptPath(), cliArgs);
   },
 });
 

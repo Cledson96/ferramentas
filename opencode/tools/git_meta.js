@@ -1,5 +1,5 @@
 import { tool } from "@opencode-ai/plugin";
-import { detectBaseBranch, extractTaskId, runGit } from "../lib/tool-utils.js";
+import { detectBaseBranch, extractTaskId, formatToolResult, runGit } from "../lib/tool-utils.js";
 
 export const detect_base_branch = tool({
   description: "Detect the most likely git base branch",
@@ -9,10 +9,10 @@ export const detect_base_branch = tool({
   async execute(args, context) {
     const cwd = args.cwd || context.directory || context.worktree;
     const result = detectBaseBranch(cwd);
-    return {
+    return formatToolResult({
       ok: Boolean(result.base),
       ...result,
-    };
+    });
   },
 });
 
@@ -25,10 +25,10 @@ export const extract_task_id = tool({
   async execute(args, context) {
     const cwd = args.cwd || context.directory || context.worktree;
     const source = args.source || runGit(cwd, ["branch", "--show-current"]);
-    return {
+    return formatToolResult({
       source,
       taskId: extractTaskId(source),
-    };
+    });
   },
 });
 
@@ -49,12 +49,12 @@ export const branch_summary = tool({
     const branch = runGit(cwd, ["branch", "--show-current"]);
     const taskId = extractTaskId(branch);
 
-    return {
+    return formatToolResult({
       branch,
       base,
       taskId,
       stat: runGit(cwd, ["diff", `${base}...HEAD`, "--stat"]),
       commits: runGit(cwd, ["log", `${base}..HEAD`, "--oneline"]),
-    };
+    });
   },
 });
