@@ -62,10 +62,12 @@ Regras de delegacao:
 
 1. Entender se o trabalho e de importacao, edicao local, sincronizacao ou criacao do zero.
 2. Se existir pagina no Confluence, comecar pela pagina pai e usar `confluence_tree` para decidir o conjunto de paginas relevantes.
-3. Fazer pull das paginas escolhidas com `confluence_pull_pages`, salvando em `docs/` com extensao `.xhtml`.
-4. Atualizar os arquivos locais preservando exatamente o Storage Format XHTML.
-5. Se a tarefa for documentacao tecnica, escolher o template mais aderente antes de criar ou reorganizar conteudo.
-6. So publicar com `confluence_create` ou `confluence_update` depois de revisar o XHTML local.
+3. Quando a pagina ja existir, puxar obrigatoriamente a versao atual antes de editar e usar esse snapshot como base local.
+4. Fazer pull das paginas escolhidas com `confluence_pull_pages`, salvando em `docs/` com extensao `.xhtml`.
+5. Atualizar os arquivos locais preservando exatamente o Storage Format XHTML.
+6. Se a tarefa for documentacao tecnica, escolher o template mais aderente antes de criar ou reorganizar conteudo.
+7. Validar se a pagina e uma pagina indice/pai de secao ou uma pagina filha de detalhamento tecnico; isso muda a forma correta de aplicar o template.
+8. So publicar com `confluence_create` ou `confluence_update` depois de revisar o XHTML local.
 
 ## Templates tecnicos
 
@@ -100,10 +102,33 @@ Heuristica de selecao:
 - usar `Servicos EDA` para servicos individuais que publicam ou consomem eventos
 - usar `PRD Tecnico` quando o pedido for uma especificacao tecnica orientada a produto ou entrega
 
+### Backend Node.js
+
+Ao usar o template `Backend Node.js` (`852525087`), tratar como obrigatorios os blocos visiveis de:
+
+- titulo
+- datas do documento/deploy
+- area de apoio
+- sumario
+
+Regras praticas para evitar erros comuns de layout e semantica:
+
+- quando a pagina usar cabecalho em layout, preferir no topo um bloco `two_equal` com `info` na esquerda e `Apoio` na direita
+- colocar o `toc` em uma secao propria logo abaixo desse cabecalho, e nao misturado dentro do mesmo bloco lateral
+- evitar duplicar o bloco de datas em outra secao depois do cabecalho
+- preservar `ac:layout`, `ac:layout-section`, `ac:layout-cell`, macros e parametros existentes quando o objetivo for alinhar o conteudo ao template sem quebrar o render
+- para paginas filhas de secao/indice (ex.: uma pagina mae de "5. Modulos"), nao forcar uma secao generica de `Introducao ao Projeto` se a semantica correta for de indice da secao
+- em paginas filhas de secao/indice, organizar o conteudo conforme a natureza da secao; por exemplo, em `Modulos`, privilegiar estruturas como `5.1 Visao Geral`, `5.2 Estrutura Padrao de Modulo` e `5.3 Modulos Disponiveis`
+- em paginas filhas de detalhamento tecnico de um modulo, manter a descricao detalhada do modulo/fluxo, contratos, persistencia, filas, riscos e observacoes operacionais
+- se a pagina atual estiver fora do template esperado, decidir conscientemente entre: (a) preservar o estilo atual da arvore por compatibilidade visual ou (b) reformatar para aderencia estrita ao template; quando houver ambiguidade editorial, confirmar com o usuario
+
 ## Convencoes locais
 
 - usar `docs/` como destino padrao
 - usar extensao `.xhtml`
+- para pagina existente, sempre puxar e salvar primeiro a versao atual do Confluence antes de qualquer publicacao
+- usar o snapshot local como base obrigatoria de revisao e edicao em atualizacoes
+- quando houver pagina mae e paginas filhas, revisar a funcao editorial de cada pagina antes de replicar secoes do template literalmente
 - preservar o corpo exatamente como veio da API quando o objetivo for espelhamento
 - nao prettificar, limpar ou reserializar o XHTML
 - nao remover `ac:*`, `ri:*`, `data-*`, `ac:local-id` ou `ac:macro-id`
@@ -115,6 +140,9 @@ Heuristica de selecao:
 - nao tratar a delegacao barata como substituto para decisao editorial
 - nao escolher template sem verificar aderencia ao contexto tecnico
 - nao publicar alteracoes sem antes revisar o XHTML local
+- nao assumir que toda pagina filha deve receber uma `Introducao ao Projeto`; primeiro validar se ela e pagina indice de secao ou pagina de detalhamento
+- nao inverter a hierarquia visual do cabecalho do template Node quando a intencao for seguir o padrao aprovado: `info` com datas na esquerda, `Apoio` na direita e `Sumario` abaixo
+- nao duplicar bloco de `info`/datas em mais de um ponto do cabecalho sem necessidade editorial explicita
 - nao converter automaticamente o corpo para Markdown ao sincronizar com o Confluence
 
 ## Referencia rapida: Confluence Storage Format
