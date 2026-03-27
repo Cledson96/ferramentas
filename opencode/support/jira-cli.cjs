@@ -247,16 +247,47 @@ function maybeSplitCsv(value) {
     .join(",");
 }
 
+const ADF_ALLOWED_MARK_TYPES = new Set(["strong", "em", "code", "link"]);
+const ADF_ALLOWED_INLINE_TYPES = new Set(["text", "hardBreak", "status"]);
+const ADF_ALLOWED_TOP_LEVEL_TYPES = new Set([
+  "paragraph",
+  "heading",
+  "bulletList",
+  "orderedList",
+  "panel",
+  "codeBlock",
+  "rule",
+  "table",
+  "expand",
+]);
+const ADF_ALLOWED_LIST_ITEM_TYPES = new Set(["paragraph", "bulletList", "orderedList", "panel", "codeBlock"]);
+const ADF_ALLOWED_CELL_TYPES = new Set(["paragraph", "bulletList", "orderedList", "panel", "codeBlock"]);
+const ADF_ALLOWED_PANEL_TYPES = new Set(["info", "note", "warning", "success", "error"]);
+const ADF_ALLOWED_STATUS_COLORS = new Set(["neutral", "purple", "blue", "red", "yellow", "green"]);
+const ADF_ALLOWED_EXPAND_TYPES = new Set([
+  "paragraph",
+  "heading",
+  "bulletList",
+  "orderedList",
+  "panel",
+  "codeBlock",
+  "rule",
+  "table",
+]);
+
 function normalizeDescription(description) {
   if (description === undefined) return undefined;
-  return buildDocNode([buildParagraphNode(String(description))]);
-}
 
-function buildDocNode(content) {
+  const paragraphs = String(description)
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => buildParagraphNode(block));
+
   return {
     type: "doc",
     version: 1,
-    content,
+    content: paragraphs.length > 0 ? paragraphs : [buildParagraphNode("")],
   };
 }
 
@@ -266,54 +297,53 @@ function buildTextNode(text, marks = undefined) {
     text: String(text),
   };
 
-  if (Array.isArray(marks) && marks.length > 0) {
+  if (marks && marks.length > 0) {
     node.marks = marks;
   }
 
   return node;
 }
 
-function buildParagraphNode(content) {
-  const normalizedContent = Array.isArray(content)
-    ? content
-    : content === undefined || content === null || content === ""
-      ? []
-      : [buildTextNode(content)];
+function buildHardBreakNode() {
+  return { type: "hardBreak" };
+}
 
-  return {
-    type: "paragraph",
-    content: normalizedContent,
-  };
+function buildInlineTextNodes(value, marks = undefined) {
+  const lines = String(value ?? "").split("\n");
+  const content = [];
+
+  lines.forEach((line, index) => {
+    if (line) {
+      content.push(buildTextNode(line, marks));
+    }
+
+    if (index < lines.length - 1) {
+      content.push(buildHardBreakNode());
+    }
+  });
+
+  return content;
+}
+
+function buildParagraphNode(value) {
+  const content = Array.isArray(value) ? value.filter(Boolean) : buildInlineTextNodes(value);
+  return content.length > 0 ? { type: "paragraph", content } : { type: "paragraph" };
 }
 
 function buildHeadingNode(level, text) {
+  const content = buildInlineTextNodes(text);
   return {
     type: "heading",
     attrs: { level },
-    content: [buildTextNode(text)],
+    ...(content.length > 0 ? { content } : {}),
   };
 }
 
-function buildRuleNode() {
-  return { type: "rule" };
-}
-
-function buildPanelNode(panelType, content) {
-  return {
-    type: "panel",
-    attrs: { panelType },
-    content,
-  };
-}
-
-function buildListItemNode(paragraphs) {
-  const content = (Array.isArray(paragraphs) ? paragraphs : [paragraphs]).map((paragraph) =>
-    paragraph && paragraph.type === "paragraph" ? paragraph : buildParagraphNode(paragraph)
-  );
-
+function buildListItemNode(value) {
+  const content = Array.isArray(value) ? value.filter(Boolean) : [buildParagraphNode(value)];
   return {
     type: "listItem",
-    content,
+    content: content.length > 0 ? content : [buildParagraphNode("")],
   };
 }
 
@@ -324,31 +354,314 @@ function buildBulletListNode(items) {
   };
 }
 
-function buildOrderedListNode(items) {
+function buildPanelNode(panelType, content) {
   return {
-    type: "orderedList",
-    content: items.map((item) => buildListItemNode(item)),
+    type: "panel",
+    attrs: { panelType },
+    content: content.filter(Boolean),
   };
 }
 
-function buildLabelValueParagraph(label, value) {
-  return buildParagraphNode([buildTextNode(`${label}: `, [{ type: "strong" }]), buildTextNode(String(value))]);
+function buildRuleNode() {
+  return { type: "rule" };
 }
 
-function normalizeStringList(items) {
-  return Array.isArray(items)
+function buildStatusNode(text, color = "neutral") {
+  return {
+    type: "status",
+    attrs: {
+      text: String(text),
+      color,
+    },
+  };
+}
+
+function buildStrongTextNode(text) {
+  return buildTextNode(text, [{ type: "strong" }]);
+}
+
+function buildLabelParagraph(label, value) {
+  const content = [buildStrongTextNode(label)];
+  if (value !== undefined && value !== null && String(value).trim()) {
+    content.push(buildTextNode(` ${String(value).trim()}`));
+  }
+  return buildParagraphNode(content);
+}
+
+function normalizeCellBlocks(value) {
+  if (Array.isArray(value)) {
+    const items = value.filter(Boolean);
+    if (items.length === 0) return [buildParagraphNode("")];
+
+    const inlineOnly = items.every(
+      (item) => item && typeof item === "object" && item.type && ADF_ALLOWED_INLINE_TYPES.has(item.type)
+    );
+
+    return inlineOnly ? [buildParagraphNode(items)] : items;
+  }
+
+  if (value && typeof value === "object" && value.type) {
+    return ADF_ALLOWED_INLINE_TYPES.has(value.type) ? [buildParagraphNode([value])] : [value];
+  }
+
+  return [buildParagraphNode(value)];
+}
+
+function buildTableCellNode(value, type = "tableCell") {
+  return {
+    type,
+    content: normalizeCellBlocks(value),
+  };
+}
+
+function buildTableNode(headers, rows) {
+  return {
+    type: "table",
+    content: [
+      {
+        type: "tableRow",
+        content: headers.map((header) => buildTableCellNode([buildParagraphNode([buildStrongTextNode(header)])], "tableHeader")),
+      },
+      ...rows.map((row) => ({
+        type: "tableRow",
+        content: row.map((cell) => buildTableCellNode(cell)),
+      })),
+    ],
+  };
+}
+
+function buildContextPanel(text, panelType = "info") {
+  return buildPanelNode(panelType, normalizeDescription(text).content);
+}
+
+function normalizeListItems(items, emptyLabel) {
+  const normalized = Array.isArray(items)
     ? items
         .filter(Boolean)
         .map((item) => String(item).trim())
         .filter(Boolean)
     : [];
+
+  return normalized.length > 0 ? normalized : [emptyLabel];
 }
 
 function buildListSectionNodes(title, items, emptyLabel) {
-  const normalized = normalizeStringList(items);
-  const listItems = (normalized.length > 0 ? normalized : [emptyLabel]).map((item) => [buildParagraphNode(item)]);
+  return [buildHeadingNode(3, title), buildBulletListNode(normalizeListItems(items, emptyLabel))];
+}
 
-  return [buildHeadingNode(3, title), buildBulletListNode(listItems)];
+function mapStatusColor(value) {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase();
+
+  if (["realizado", "atendido", "concluido", "respondido", "validado", "ok"].some((item) => normalized.includes(item))) {
+    return "green";
+  }
+
+  if (["andamento", "progresso", "analise", "investigacao", "em curso"].some((item) => normalized.includes(item))) {
+    return "blue";
+  }
+
+  if (["pendente", "aguardando", "parcial", "atencao", "risco"].some((item) => normalized.includes(item))) {
+    return "yellow";
+  }
+
+  if (["bloqueado", "falha", "erro", "impedido", "nao atendido"].some((item) => normalized.includes(item))) {
+    return "red";
+  }
+
+  return "neutral";
+}
+
+function buildReplyContextNodes(replyContext) {
+  return [
+    buildPanelNode(replyContext.resolvedByLookup ? "note" : "warning", [
+      buildLabelParagraph("Comentario alvo:", replyContext.targetCommentId),
+      buildLabelParagraph("Autor original:", replyContext.author || "desconhecido"),
+      buildLabelParagraph("Resumo:", replyContext.summary || "sem resumo disponivel"),
+      !replyContext.resolvedByLookup
+        ? buildLabelParagraph("Observacao:", "contexto do comentario alvo informado manualmente por fallback.")
+        : null,
+    ]),
+  ];
+}
+
+function failAdf(argName, path, message, details = {}) {
+  fail(`ADF payload in --${argName} ${message}`, {
+    details: {
+      path,
+      ...details,
+    },
+  });
+}
+
+function validateMark(mark, path, argName) {
+  if (!mark || typeof mark !== "object" || Array.isArray(mark)) {
+    failAdf(argName, path, "contains an invalid mark object.");
+  }
+
+  if (!ADF_ALLOWED_MARK_TYPES.has(mark.type)) {
+    failAdf(argName, path, "uses an unsupported mark type.", {
+      type: mark.type,
+      allowedMarkTypes: Array.from(ADF_ALLOWED_MARK_TYPES),
+    });
+  }
+
+  if (mark.type === "link") {
+    if (!mark.attrs || typeof mark.attrs !== "object" || Array.isArray(mark.attrs)) {
+      failAdf(argName, `${path}.attrs`, "requires attrs for a link mark.");
+    }
+
+    if (!mark.attrs.href || typeof mark.attrs.href !== "string") {
+      failAdf(argName, `${path}.attrs.href`, "requires a string href for a link mark.");
+    }
+  }
+}
+
+function validateMarks(marks, path, argName) {
+  if (marks === undefined) return;
+
+  if (!Array.isArray(marks)) {
+    failAdf(argName, path, "must use an array for marks.");
+  }
+
+  marks.forEach((mark, index) => validateMark(mark, `${path}[${index}]`, argName));
+}
+
+function validateNodeArray(content, path, argName, allowedTypes) {
+  if (!Array.isArray(content)) {
+    failAdf(argName, path, "must contain a content array.");
+  }
+
+  content.forEach((child, index) => {
+    const childPath = `${path}[${index}]`;
+    validateAdfNode(child, childPath, argName);
+
+    if (allowedTypes && !allowedTypes.has(child.type)) {
+      failAdf(argName, childPath, "uses a child node type that is not allowed in this context.", {
+        type: child.type,
+        allowedChildTypes: Array.from(allowedTypes),
+      });
+    }
+  });
+}
+
+function validateAdfNode(node, path, argName) {
+  if (!node || typeof node !== "object" || Array.isArray(node)) {
+    failAdf(argName, path, "contains an invalid node object.");
+  }
+
+  if (typeof node.type !== "string") {
+    failAdf(argName, `${path}.type`, "is missing a string node type.");
+  }
+
+  switch (node.type) {
+    case "text": {
+      if (typeof node.text !== "string") {
+        failAdf(argName, `${path}.text`, "requires a string text value.");
+      }
+      validateMarks(node.marks, `${path}.marks`, argName);
+      return;
+    }
+
+    case "hardBreak":
+    case "rule":
+      return;
+
+    case "status": {
+      if (!node.attrs || typeof node.attrs !== "object" || Array.isArray(node.attrs)) {
+        failAdf(argName, `${path}.attrs`, "requires attrs for a status node.");
+      }
+
+      if (!node.attrs.text || typeof node.attrs.text !== "string") {
+        failAdf(argName, `${path}.attrs.text`, "requires a string text for a status node.");
+      }
+
+      if (!ADF_ALLOWED_STATUS_COLORS.has(node.attrs.color)) {
+        failAdf(argName, `${path}.attrs.color`, "uses an unsupported status color.", {
+          color: node.attrs.color,
+          allowedStatusColors: Array.from(ADF_ALLOWED_STATUS_COLORS),
+        });
+      }
+      return;
+    }
+
+    case "paragraph":
+      if (node.content !== undefined) {
+        validateNodeArray(node.content, `${path}.content`, argName, ADF_ALLOWED_INLINE_TYPES);
+      }
+      return;
+
+    case "heading": {
+      const level = node.attrs?.level;
+      if (!Number.isInteger(level) || level < 1 || level > 6) {
+        failAdf(argName, `${path}.attrs.level`, "requires a heading level between 1 and 6.");
+      }
+      validateNodeArray(node.content || [], `${path}.content`, argName, new Set(["text", "hardBreak"]));
+      return;
+    }
+
+    case "bulletList":
+    case "orderedList":
+      validateNodeArray(node.content, `${path}.content`, argName, new Set(["listItem"]));
+      return;
+
+    case "listItem":
+      validateNodeArray(node.content, `${path}.content`, argName, ADF_ALLOWED_LIST_ITEM_TYPES);
+      return;
+
+    case "panel": {
+      if (!ADF_ALLOWED_PANEL_TYPES.has(node.attrs?.panelType)) {
+        failAdf(argName, `${path}.attrs.panelType`, "uses an unsupported panel type.", {
+          panelType: node.attrs?.panelType,
+          allowedPanelTypes: Array.from(ADF_ALLOWED_PANEL_TYPES),
+        });
+      }
+      validateNodeArray(node.content, `${path}.content`, argName, new Set(["paragraph", "heading", "bulletList", "orderedList", "codeBlock"]));
+      return;
+    }
+
+    case "codeBlock": {
+      if (node.attrs?.language !== undefined && typeof node.attrs.language !== "string") {
+        failAdf(argName, `${path}.attrs.language`, "must be a string when provided.");
+      }
+
+      validateNodeArray(node.content || [], `${path}.content`, argName, new Set(["text"]));
+      (node.content || []).forEach((child, index) => {
+        if (Array.isArray(child.marks) && child.marks.length > 0) {
+          failAdf(argName, `${path}.content[${index}].marks`, "cannot use marks inside codeBlock text nodes.");
+        }
+      });
+      return;
+    }
+
+    case "table":
+      validateNodeArray(node.content, `${path}.content`, argName, new Set(["tableRow"]));
+      return;
+
+    case "tableRow":
+      validateNodeArray(node.content, `${path}.content`, argName, new Set(["tableCell", "tableHeader"]));
+      return;
+
+    case "tableCell":
+    case "tableHeader":
+      validateNodeArray(node.content, `${path}.content`, argName, ADF_ALLOWED_CELL_TYPES);
+      return;
+
+    case "expand": {
+      if (!node.attrs?.title || typeof node.attrs.title !== "string") {
+        failAdf(argName, `${path}.attrs.title`, "requires a string title for an expand node.");
+      }
+      validateNodeArray(node.content, `${path}.content`, argName, ADF_ALLOWED_EXPAND_TYPES);
+      return;
+    }
+
+    default:
+      failAdf(argName, path, "uses an unsupported node type.", {
+        type: node.type,
+        allowedTopLevelTypes: Array.from(ADF_ALLOWED_TOP_LEVEL_TYPES),
+      });
+  }
 }
 
 function validateAdfDocument(value, argName = "body-adf-json") {
@@ -367,6 +680,8 @@ function validateAdfDocument(value, argName = "body-adf-json") {
   if (!Array.isArray(value.content)) {
     fail(`ADF payload in --${argName} must contain an array field 'content'.`);
   }
+
+  validateNodeArray(value.content, "doc.content", argName, ADF_ALLOWED_TOP_LEVEL_TYPES);
 
   return value;
 }
@@ -395,10 +710,18 @@ function plainTextFromAdf(node) {
     return node.text || "";
   }
 
+  if (node.type === "hardBreak") {
+    return "\n";
+  }
+
+  if (node.type === "status") {
+    return node.attrs?.text || "";
+  }
+
   const content = Array.isArray(node.content) ? node.content : [];
   const combined = content.map((item) => plainTextFromAdf(item)).filter(Boolean).join(" ").trim();
 
-  if (["paragraph", "heading", "listItem"].includes(node.type)) {
+  if (["paragraph", "heading", "listItem", "tableCell", "tableHeader"].includes(node.type)) {
     return combined;
   }
 
@@ -408,6 +731,18 @@ function plainTextFromAdf(node) {
       .filter(Boolean)
       .map((item) => `- ${item}`)
       .join("\n");
+  }
+
+  if (node.type === "tableRow") {
+    return content.map((item) => plainTextFromAdf(item)).filter(Boolean).join(" | ");
+  }
+
+  if (node.type === "table") {
+    return content.map((item) => plainTextFromAdf(item)).filter(Boolean).join("\n");
+  }
+
+  if (["panel", "expand", "codeBlock"].includes(node.type)) {
+    return content.map((item) => plainTextFromAdf(item)).filter(Boolean).join("\n").trim();
   }
 
   return combined;
@@ -461,15 +796,12 @@ function validatePoints(points) {
 }
 
 function buildStructuredCommentAdf(args, replyContext = null) {
-  if (args.body && args.body !== true) {
-    return normalizeDescription(String(args.body));
-  }
-
   const mode = args.mode || "progresso";
   const realizado = parseListArg(args, "realizado-json");
   const pendencias = parseListArg(args, "pendencias-json");
   const bloqueios = parseListArg(args, "bloqueios-json");
   const proximoPasso = parseListArg(args, "proximo-passo-json");
+  const context = args.context && args.context !== true ? String(args.context).trim() : "";
 
   if (!realizado || !pendencias || !bloqueios || !proximoPasso) {
     fail(
@@ -482,71 +814,72 @@ function buildStructuredCommentAdf(args, replyContext = null) {
   if (mode === "progresso") {
     const criteria = parseObjectOrArrayArg(args, "criteria-json");
     validateCriteria(criteria, mode);
-    content.push(buildHeadingNode(2, "Atualizacao de andamento"));
+
+    content.push(buildHeadingNode(2, "Atualizacao de progresso"));
+    content.push(buildParagraphNode("Atualizacao de andamento referente aos criterios impactados neste ciclo."));
+
+    if (context) {
+      content.push(buildContextPanel(context, "info"));
+    }
+
     content.push(
-      buildPanelNode(
-        "info",
-        [buildParagraphNode("Atualizacao de andamento referente aos criterios impactados neste ciclo.")].concat(
-          args.context && args.context !== true ? [buildParagraphNode(String(args.context).trim())] : []
-        )
-      )
-    );
-    content.push(buildHeadingNode(3, "Criterios impactados"));
-    content.push(
-      buildOrderedListNode(
+      buildTableNode(
+        ["Criterio", "Status", "Detalhe tecnico"],
         criteria.map((criterion) => [
-          buildParagraphNode([buildTextNode(String(criterion.title), [{ type: "strong" }])]),
-          buildLabelValueParagraph("Status", criterion.status),
-          buildLabelValueParagraph("Detalhe tecnico", criterion.detail),
+          criterion.title,
+          buildStatusNode(criterion.status, mapStatusColor(criterion.status)),
+          criterion.detail,
         ])
       )
     );
   } else if (mode === "fechamento") {
     const criteria = parseObjectOrArrayArg(args, "criteria-json");
     validateCriteria(criteria, mode);
+
     content.push(buildHeadingNode(2, "Fechamento tecnico"));
+    content.push(buildParagraphNode("Fechamento tecnico do card com consolidacao dos criterios de aceite."));
+
+    if (context) {
+      content.push(buildContextPanel(context, "success"));
+    }
+
     content.push(
-      buildPanelNode(
-        "success",
-        [buildParagraphNode("Fechamento tecnico do card com consolidacao dos criterios de aceite.")].concat(
-          args.context && args.context !== true ? [buildParagraphNode(String(args.context).trim())] : []
-        )
-      )
-    );
-    content.push(buildHeadingNode(3, "Criterios consolidados"));
-    content.push(
-      buildOrderedListNode(
+      buildTableNode(
+        ["Criterio", "Status final", "Evidencia"],
         criteria.map((criterion) => [
-          buildParagraphNode([buildTextNode(String(criterion.title), [{ type: "strong" }])]),
-          buildLabelValueParagraph("Status final", criterion.status),
-          buildLabelValueParagraph("Evidencia", criterion.detail),
+          criterion.title,
+          buildStatusNode(criterion.status, mapStatusColor(criterion.status)),
+          criterion.detail,
         ])
       )
     );
   } else if (mode === "resposta") {
     const points = parseObjectOrArrayArg(args, "points-json");
     validatePoints(points);
-    const summary =
-      replyContext?.summary ||
-      extractSingleLineSummary(args.context || "comentario anterior");
-    content.push(buildHeadingNode(2, "Resposta a comentario"));
+
+    content.push(buildHeadingNode(2, "Resposta tecnica"));
+    content.push(buildParagraphNode("Resposta consolidada para o comentario alvo do Jira."));
+
+    if (!replyContext) {
+      content.push(
+        buildLabelParagraph(
+          "Assunto do comentario:",
+          extractSingleLineSummary(args["target-summary"] || context || "comentario anterior")
+        )
+      );
+    }
+
+    if (context) {
+      content.push(buildContextPanel(context, "info"));
+    }
+
     content.push(
-      buildPanelNode(replyContext?.resolvedByLookup ? "note" : "warning", [
-        buildLabelValueParagraph("Comentario alvo", replyContext?.targetCommentId || args["comment-id"] || "nao informado"),
-        buildLabelValueParagraph("Autor original", replyContext?.author || "desconhecido"),
-        buildLabelValueParagraph("Resumo do comentario", summary || "comentario anterior"),
-      ])
-    );
-    content.push(buildHeadingNode(3, "Pontos respondidos"));
-    content.push(
-      buildOrderedListNode(
+      buildTableNode(
+        ["Ponto", "Status", "Resposta"],
         points.map((point, index) => [
-          buildParagraphNode([
-            buildTextNode(`Ponto ${index + 1}: `, [{ type: "strong" }]),
-            buildTextNode(point.title),
-          ]),
-          buildLabelValueParagraph("Status", point.status),
-          buildLabelValueParagraph("Resposta", point.response),
+          `${index + 1}. ${point.title}`,
+          buildStatusNode(point.status, mapStatusColor(point.status)),
+          point.response,
         ])
       )
     );
@@ -563,6 +896,25 @@ function buildStructuredCommentAdf(args, replyContext = null) {
   content.push(...buildListSectionNodes("Proximo passo", proximoPasso, "sem proximo passo definido"));
 
   return buildDocNode(content);
+}
+
+function buildDocNode(content) {
+  return {
+    type: "doc",
+    version: 1,
+    content: content.filter(Boolean),
+  };
+}
+
+function buildCommentDocument(args, replyContext = null) {
+  const adfBody = parseAdfArg(args);
+  if (adfBody) return adfBody;
+
+  if (args.body && args.body !== true) {
+    return normalizeDescription(String(args.body));
+  }
+
+  return buildStructuredCommentAdf(args, replyContext);
 }
 
 async function handleGet(auth, args) {
@@ -612,8 +964,7 @@ async function handleJql(auth, args) {
 
 async function handleComment(auth, args) {
   const issue = requireArg(args, "issue");
-  const adfBody = parseAdfArg(args);
-  const body = adfBody || normalizeDescription(buildStructuredCommentBody(args));
+  const body = buildCommentDocument(args);
   return jiraRequest(auth, "POST", `/rest/api/3/issue/${encodeURIComponent(issue)}/comment`, {
     body: {
       body,
@@ -705,12 +1056,12 @@ async function handleReply(auth, args) {
         resolvedByLookup: false,
       };
     } else {
-    replyContext = {
-      summary: extractSingleLineSummary(plainTextFromAdf(targetComment.body)),
-      targetCommentId: targetComment.id,
-      author: targetComment.author?.displayName || "desconhecido",
-      resolvedByLookup: true,
-    };
+      replyContext = {
+        summary: extractSingleLineSummary(plainTextFromAdf(targetComment.body)),
+        targetCommentId: targetComment.id,
+        author: targetComment.author?.displayName || "desconhecido",
+        resolvedByLookup: true,
+      };
     }
   } else {
     if (!args["target-summary"]) {
@@ -732,27 +1083,16 @@ async function handleReply(auth, args) {
     };
   }
 
-  const decoratedHeader = [
-    `Comentario alvo: ${replyContext.targetCommentId}`,
-    `Autor original: ${replyContext.author}`,
-  ];
-
-  if (!replyContext.resolvedByLookup) {
-    decoratedHeader.push("Observacao: contexto do comentario alvo informado manualmente por fallback.");
-  }
-
-  const adfBody = parseAdfArg(args);
-  const finalBody = adfBody
-    ? mergeAdfWithPrefix(decoratedHeader.map((line) => buildParagraphNode(line)), adfBody)
-    : normalizeDescription(
-        `${decoratedHeader.join("\n")}\n\n${buildStructuredCommentBody(
-          {
-            ...args,
-            mode: args.mode || "resposta",
-          },
-          replyContext
-        )}`
-      );
+  const finalBody = mergeAdfWithPrefix(
+    buildReplyContextNodes(replyContext),
+    buildCommentDocument(
+      {
+        ...args,
+        mode: args.mode || "resposta",
+      },
+      replyContext
+    )
+  );
 
   return jiraRequest(auth, "POST", `/rest/api/3/issue/${encodeURIComponent(issue)}/comment`, {
     body: {
@@ -948,6 +1288,10 @@ function printHelp() {
   printJson({
     ok: true,
     usage: "jira.js <command> [options]",
+    notes: [
+      "Prefer --body-adf-json for Jira comments and replies.",
+      "Structured comment modes also generate rich ADF documents using the recommended subset.",
+    ],
     commands: [
       "setup --base-url https://juscash.atlassian.net --email usuario@empresa.com --token TOKEN",
       "get --issue ABC-123 [--fields summary,status] [--expand renderedFields]",
@@ -955,11 +1299,11 @@ function printHelp() {
       "jql --jql \"project = JS ORDER BY updated DESC\" [--maxResults 20] [--fields summary,status]",
       "comments --issue ABC-123 [--maxResults 20] [--orderBy -created]",
       "comments --issue ABC-123 --comment-id 42723",
-      "comment --issue ABC-123 --body \"texto\"",
       "comment --issue ABC-123 --body-adf-json '{\"type\":\"doc\",\"version\":1,\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Comentario rico\",\"marks\":[{\"type\":\"strong\"}]}]}]}'",
+      "comment --issue ABC-123 --body \"texto simples de fallback\"",
       "comment --issue ABC-123 --mode progresso --criteria-json '[{\"title\":\"Crit 1\",\"status\":\"realizado\",\"detail\":\"Correcao aplicada e validada\"}]' --realizado-json '[\"Ajustado fluxo X\"]' --pendencias-json '[\"Validar caso Y\"]' --bloqueios-json '[\"sem bloqueios\"]' --proximo-passo-json '[\"Abrir PR\"]'",
-      "reply --issue ABC-123 --comment-id 42723 --body \"texto\"",
       "reply --issue ABC-123 --comment-id 42723 --body-adf-json '{\"type\":\"doc\",\"version\":1,\"content\":[{\"type\":\"paragraph\",\"content\":[{\"type\":\"text\",\"text\":\"Resposta rica\"}]}]}'",
+      "reply --issue ABC-123 --comment-id 42723 --body \"texto simples de fallback\"",
       "reply --issue ABC-123 --comment-id 42723 --target-summary \"Pedido de validacao do fluxo\" --points-json '[{\"title\":\"Duvida 1\",\"status\":\"respondido\",\"response\":\"Fluxo ajustado com validacao\"}]' --realizado-json '[\"Identificada causa raiz\"]' --pendencias-json '[\"Validar em staging\"]' --bloqueios-json '[\"sem bloqueios\"]' --proximo-passo-json '[\"Comentar evidencias finais\"]'",
       "transitions --issue ABC-123",
       "transition --issue ABC-123 --transition-id 31 [--fields '{...}'] [--update '{...}']",

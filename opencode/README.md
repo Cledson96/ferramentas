@@ -6,7 +6,7 @@ Este diretorio agora representa a estrutura final instalada em `~/.config/openco
 
 - `agents/` concentra os workflows e especialistas: `review`, `qa-agent`, `devops-agent`, `figma-implement-design`, `start-feature`, `feature-done`, `commit` e `pull-request`
 - `tools/` concentra as integracoes e operacoes deterministicas: Jira, Confluence, Project Context e metadados de Git
-- `skills/` ficou apenas com conhecimento reutilizavel e guardrails: `design-system`, `figma`, `playwright`, `confluence-docs` e `onboarding`
+- `skills/` ficou apenas com conhecimento reutilizavel e guardrails: `design-system`, `figma`, `playwright`, `confluence-docs`, `onboarding` e `jira-rest`
 - `config/` substitui a antiga pasta `plugin/` para os arquivos globais de configuracao
 
 ## Estrutura
@@ -47,4 +47,5 @@ node ./opencode/scripts/install-global.js status
 - o instalador faz backup antes de sobrescrever arquivos gerenciados
 - `config/opencode.jsonc` e mesclado com `~/.config/opencode/opencode.json`
 - `support/` existe para manter implementacoes internas das tools fora dos prompts
+- comentarios Jira devem preferir ADF via `jira_comment` e `jira_reply`, com `bodyAdfJson`
 - `MIGRATION-PLAN.md` registra o status da reorganizacao
