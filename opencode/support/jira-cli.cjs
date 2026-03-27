@@ -249,23 +249,106 @@ function maybeSplitCsv(value) {
 
 function normalizeDescription(description) {
   if (description === undefined) return undefined;
+  return buildDocNode([buildParagraphNode(String(description))]);
+}
+
+function buildDocNode(content) {
   return {
     type: "doc",
     version: 1,
-    content: [
-      {
-        type: "paragraph",
-        content: [{ type: "text", text: String(description) }],
-      },
-    ],
+    content,
   };
 }
 
-function buildParagraphNode(text) {
+function buildTextNode(text, marks = undefined) {
+  const node = {
+    type: "text",
+    text: String(text),
+  };
+
+  if (Array.isArray(marks) && marks.length > 0) {
+    node.marks = marks;
+  }
+
+  return node;
+}
+
+function buildParagraphNode(content) {
+  const normalizedContent = Array.isArray(content)
+    ? content
+    : content === undefined || content === null || content === ""
+      ? []
+      : [buildTextNode(content)];
+
   return {
     type: "paragraph",
-    content: [{ type: "text", text: String(text) }],
+    content: normalizedContent,
   };
+}
+
+function buildHeadingNode(level, text) {
+  return {
+    type: "heading",
+    attrs: { level },
+    content: [buildTextNode(text)],
+  };
+}
+
+function buildRuleNode() {
+  return { type: "rule" };
+}
+
+function buildPanelNode(panelType, content) {
+  return {
+    type: "panel",
+    attrs: { panelType },
+    content,
+  };
+}
+
+function buildListItemNode(paragraphs) {
+  const content = (Array.isArray(paragraphs) ? paragraphs : [paragraphs]).map((paragraph) =>
+    paragraph && paragraph.type === "paragraph" ? paragraph : buildParagraphNode(paragraph)
+  );
+
+  return {
+    type: "listItem",
+    content,
+  };
+}
+
+function buildBulletListNode(items) {
+  return {
+    type: "bulletList",
+    content: items.map((item) => buildListItemNode(item)),
+  };
+}
+
+function buildOrderedListNode(items) {
+  return {
+    type: "orderedList",
+    content: items.map((item) => buildListItemNode(item)),
+  };
+}
+
+function buildLabelValueParagraph(label, value) {
+  return buildParagraphNode([buildTextNode(`${label}: `, [{ type: "strong" }]), buildTextNode(String(value))]);
+}
+
+function normalizeStringList(items) {
+  return Array.isArray(items)
+    ? items
+        .filter(Boolean)
+        .map((item) => String(item).trim())
+        .filter(Boolean)
+    : [];
+}
+
+function buildListSectionNodes(title, items, emptyLabel) {
+  const normalized = normalizeStringList(items);
+  const listItems = (normalized.length > 0 ? normalized : [emptyLabel]).map((item) => [buildParagraphNode(item)]);
+
+  return [buildHeadingNode(3, title), buildBulletListNode(listItems)];
 }
 
 function validateAdfDocument(value, argName = "body-adf-json") {
@@ -340,12 +423,6 @@ function extractSingleLineSummary(value, maxLength = 140) {
   return `${normalized.slice(0, maxLength - 3).trim()}...`;
 }
 
-function renderListSection(title, items, emptyLabel) {
-  const normalized = Array.isArray(items) ? items.filter(Boolean).map((item) => String(item).trim()).filter(Boolean) : [];
-  const lines = normalized.length > 0 ? normalized.map((item) => `- ${item}`) : [`- ${emptyLabel}`];
-  return [title, ...lines].join("\n");
-}
-
 function validateCriteria(criteria, mode) {
   if (!Array.isArray(criteria) || criteria.length === 0) {
     fail(`Structured comment mode '${mode}' requires --criteria-json with at least one criterion.`);
@@ -383,9 +460,9 @@ function validatePoints(points) {
   });
 }
 
-function buildStructuredCommentBody(args, replyContext = null) {
+function buildStructuredCommentAdf(args, replyContext = null) {
   if (args.body && args.body !== true) {
-    return String(args.body);
+    return normalizeDescription(String(args.body));
   }
 
   const mode = args.mode || "progresso";
@@ -400,68 +477,92 @@ function buildStructuredCommentBody(args, replyContext = null) {
     );
   }
 
-  const sections = [];
+  const content = [];
 
   if (mode === "progresso") {
     const criteria = parseObjectOrArrayArg(args, "criteria-json");
     validateCriteria(criteria, mode);
-    sections.push("Atualizacao de andamento referente aos criterios impactados neste ciclo.");
-    if (args.context && args.context !== true) {
-      sections.push(String(args.context).trim());
-    }
-    criteria.forEach((criterion) => {
-      sections.push(
-        [
-          `Criterio: ${criterion.title}`,
-          `Status: ${criterion.status}`,
-          `Detalhe tecnico: ${criterion.detail}`,
-        ].join("\n")
-      );
-    });
+    content.push(buildHeadingNode(2, "Atualizacao de andamento"));
+    content.push(
+      buildPanelNode(
+        "info",
+        [buildParagraphNode("Atualizacao de andamento referente aos criterios impactados neste ciclo.")].concat(
+          args.context && args.context !== true ? [buildParagraphNode(String(args.context).trim())] : []
+        )
+      )
+    );
+    content.push(buildHeadingNode(3, "Criterios impactados"));
+    content.push(
+      buildOrderedListNode(
+        criteria.map((criterion) => [
+          buildParagraphNode([buildTextNode(String(criterion.title), [{ type: "strong" }])]),
+          buildLabelValueParagraph("Status", criterion.status),
+          buildLabelValueParagraph("Detalhe tecnico", criterion.detail),
+        ])
+      )
+    );
   } else if (mode === "fechamento") {
     const criteria = parseObjectOrArrayArg(args, "criteria-json");
     validateCriteria(criteria, mode);
-    sections.push("Fechamento tecnico do card com consolidacao dos criterios de aceite.");
-    if (args.context && args.context !== true) {
-      sections.push(String(args.context).trim());
-    }
-    criteria.forEach((criterion) => {
-      sections.push(
-        [
-          `Criterio: ${criterion.title}`,
-          `Status final: ${criterion.status}`,
-          `Evidencia: ${criterion.detail}`,
-        ].join("\n")
-      );
-    });
+    content.push(buildHeadingNode(2, "Fechamento tecnico"));
+    content.push(
+      buildPanelNode(
+        "success",
+        [buildParagraphNode("Fechamento tecnico do card com consolidacao dos criterios de aceite.")].concat(
+          args.context && args.context !== true ? [buildParagraphNode(String(args.context).trim())] : []
+        )
+      )
+    );
+    content.push(buildHeadingNode(3, "Criterios consolidados"));
+    content.push(
+      buildOrderedListNode(
+        criteria.map((criterion) => [
+          buildParagraphNode([buildTextNode(String(criterion.title), [{ type: "strong" }])]),
+          buildLabelValueParagraph("Status final", criterion.status),
+          buildLabelValueParagraph("Evidencia", criterion.detail),
+        ])
+      )
+    );
   } else if (mode === "resposta") {
     const points = parseObjectOrArrayArg(args, "points-json");
     validatePoints(points);
     const summary =
       replyContext?.summary ||
       extractSingleLineSummary(args.context || "comentario anterior");
-    sections.push(`Em resposta ao comentario sobre: ${summary}`);
-    points.forEach((point, index) => {
-      sections.push(
-        [
-          `Ponto ${index + 1}: ${point.title}`,
-          `Status: ${point.status}`,
-          `Resposta: ${point.response}`,
-        ].join("\n")
-      );
-    });
+    content.push(buildHeadingNode(2, "Resposta a comentario"));
+    content.push(
+      buildPanelNode(replyContext?.resolvedByLookup ? "note" : "warning", [
+        buildLabelValueParagraph("Comentario alvo", replyContext?.targetCommentId || args["comment-id"] || "nao informado"),
+        buildLabelValueParagraph("Autor original", replyContext?.author || "desconhecido"),
+        buildLabelValueParagraph("Resumo do comentario", summary || "comentario anterior"),
+      ])
+    );
+    content.push(buildHeadingNode(3, "Pontos respondidos"));
+    content.push(
+      buildOrderedListNode(
+        points.map((point, index) => [
+          buildParagraphNode([
+            buildTextNode(`Ponto ${index + 1}: `, [{ type: "strong" }]),
+            buildTextNode(point.title),
+          ]),
+          buildLabelValueParagraph("Status", point.status),
+          buildLabelValueParagraph("Resposta", point.response),
+        ])
+      )
+    );
   } else {
     fail(`Unsupported structured comment mode: ${mode}.`, {
       details: { supportedModes: ["progresso", "resposta", "fechamento"] },
     });
   }
 
-  sections.push(renderListSection("Realizado", realizado, "sem atualizacoes registradas"));
-  sections.push(renderListSection("Pendencias", pendencias, "sem pendencias"));
-  sections.push(renderListSection("Bloqueios", bloqueios, "sem bloqueios"));
-  sections.push(renderListSection("Proximo passo", proximoPasso, "sem proximo passo definido"));
+  content.push(buildRuleNode());
+  content.push(...buildListSectionNodes("Realizado", realizado, "sem atualizacoes registradas"));
+  content.push(...buildListSectionNodes("Pendencias", pendencias, "sem pendencias"));
+  content.push(...buildListSectionNodes("Bloqueios", bloqueios, "sem bloqueios"));
+  content.push(...buildListSectionNodes("Proximo passo", proximoPasso, "sem proximo passo definido"));
 
-  return sections.filter(Boolean).join("\n\n");
+  return buildDocNode(content);
 }
 
 async function handleGet(auth, args) {
